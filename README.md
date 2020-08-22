@@ -1,6 +1,25 @@
-# Ciência de Dados em Psicometria
+## Ciência de Dados em Psicometria
 
-Universidade São Francisco  
-Prof. Ricardo Primi  
+Universidade São Francisco (USF)\
+Prof. Ricardo Primi
 
-Bem vindo ao Curso  
+Bem vindo ao Curso!!
+
+
+#### Aula 1 (17/08/2020) Introdução: data science, machine learning e deep learnig
+
+-   Slides: <http://www.labape.com.br/rprimi/ds/t0_introducao.pptx>
+
+#### Aula 2 (24/08/2020) R, R-studio e análise exploratória gráfica com ggplot
+
+-   R e R-Studio
+
+-   tidyverse
+
+-   R-markdown Slides: <http://www.labape.com.br/rprimi/ds/garrett_grolemund_r_markdown.pdf>
+
+-   R-markdown cheatsheet https://rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf
+
+-   ggplot
+
+![](imagens/tidyverse.png){width="114"} ![](imagens/ggplot2.png){width="114"}
