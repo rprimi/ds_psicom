@@ -5,7 +5,6 @@ Prof. Ricardo Primi
 
 Bem vindo ao Curso!!
 
-
 #### Aula 1 (17/08/2020) Introdução: data science, machine learning e deep learnig
 
 -   Slides: <http://www.labape.com.br/rprimi/ds/t0_introducao.pptx>
@@ -18,8 +17,8 @@ Bem vindo ao Curso!!
 
 -   R-markdown Slides: <http://www.labape.com.br/rprimi/ds/garrett_grolemund_r_markdown.pdf>
 
--   R-markdown cheatsheet https://rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf
+-   R-markdown cheatsheet <https://rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf>
 
--   ggplot
-
-![](imagens/tidyverse.png){width="114"} ![](imagens/ggplot2.png){width="114"}
+-   ggplot  
+  
+<img src="imagens/tidyverse.png" alt="drawing" width="114"/>  <img src="imagens/ggplot2.png" alt="drawing" width="114"/>
