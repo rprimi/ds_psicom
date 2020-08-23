@@ -1,0 +1,103 @@
+---
+title: "ggplot"
+output: html_document
+---
+
+### Lê dados
+```{r}
+load("../dados/enem.Rdata")
+```
+
+### Bibliotecas
+```{r}
+library(tidyverse)
+```
+
+### Qual a relação entre português e matemática?
+```{r}
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT))
+```
+
+
+* ggplot(data = <DATA>) +
+  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+
+
+### Sua vez
+* Qual a relação entre outras notas (lembre que tem redação) ? 
+* Qual a relação entre a nota de matemática
+
+```{r}
+
+
+```
+
+
+### Qual a relação entre as provas para meninos e meninas e por tipo de escola ?
+```{r}
+library(sjmisc)
+frq(enem$TP_SEXO)
+frq(enem$TP_ESCOLA)
+frq(enem$TP_DEPENDENCIA_ADM_ESC)
+
+
+
+```
+
+```{r}
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO))
+
+```
+
+* Explore a relação com outras terceiras variáveis
+```{r}
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_DEPENDENCIA_ADM_ESC))
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_ESCOLA))
+
+
+
+```
+* Qual o erro aqui ?
+```{r}
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT) color = TP_SEXO))
+
+```
+
+
+### Uso de facets
+```{r}
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO)) +
+  facet_wrap(~TP_SEXO)
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_DEPENDENCIA_ADM_ESC)) +
+  facet_wrap(~TP_DEPENDENCIA_ADM_ESC)
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_DEPENDENCIA_ADM_ESC)) +
+  facet_grid(TP_DEPENDENCIA_ADM_ESC~.)
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_DEPENDENCIA_ADM_ESC)) +
+  facet_grid(.~TP_DEPENDENCIA_ADM_ESC)
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_DEPENDENCIA_ADM_ESC)) +
+  facet_grid(TP_DEPENDENCIA_ADM_ESC~TP_SEXO)
+
+```
+### Geoms
+* Estudo e cheatsheet
+<https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf>
+

@@ -19,6 +19,12 @@ Bem vindo ao Curso!!
 
 -   R-markdown cheatsheet <https://rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf>
 
--   ggplot  
-  
-<img src="imagens/tidyverse.png" alt="drawing" width="114"/>  <img src="imagens/ggplot2.png" alt="drawing" width="114"/>
+-   ggplot
+<https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf>
+
+
+<https://rstudio.cloud/learn/cheat-sheets>
+
+
+
+![drawing](imagens/tidyverse.png){width="114"} ![drawing](imagens/ggplot2.png){width="114"}
