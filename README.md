@@ -27,4 +27,4 @@ Bem vindo ao Curso!!
 
 <https://rstudio.cloud/learn/cheat-sheets>
 
-![](imagens/rmarkdown.png){width=10%} ![](imagens/tidyverse.png){width=10%} ![](imagens/ggplot2.png){width=10%}
+<img src="imagens/rmarkdown.png" width="80"/> <img src="imagens/tidyverse.png" width="80"/> <img src="imagens/ggplot2.png" width="80"/>
