@@ -101,3 +101,11 @@ ggplot(data = enem) +
 * Estudo e cheatsheet
 <https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf>
 
+```{r}
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO))
+
+ggplot(data = enem) + 
+  geom_boxplot(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO))
+```
+

@@ -23,4 +23,4 @@ Bem vindo ao Curso!!
 
 <https://rstudio.cloud/learn/cheat-sheets>
 
-<img src="imagens/tidyverse.png" width="114"/> [<img src="imagens/ggplot2.png" width="114"/>
+<img src="imagens/tidyverse.png" width="114"/> <img src="imagens/ggplot2.png" width="114"/>
