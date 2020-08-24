@@ -13,6 +13,10 @@ Bem vindo ao Curso!!
 
 -   R e R-Studio
 
+    -   <https://cran.r-project.org>
+
+    -   <https://rstudio.github.io/visual-markdown-editing/#/>
+
 -   tidyverse
 
 -   R-markdown Slides: <http://www.labape.com.br/rprimi/ds/garrett_grolemund_r_markdown.pdf>
@@ -23,4 +27,4 @@ Bem vindo ao Curso!!
 
 <https://rstudio.cloud/learn/cheat-sheets>
 
-<img src="imagens/tidyverse.png" width="114"/> <img src="imagens/ggplot2.png" width="114"/>
+![](imagens/rmarkdown.png){width="80"} ![](imagens/tidyverse.png){width="80"} ![](imagens/ggplot2.png){width="80"}
