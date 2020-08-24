@@ -1,0 +1,25 @@
+---
+title: "R-markdown"
+output: html_document
+---
+
+### Exercício R-Markdown
+* Faça esse exercício para se familiarizar com açòes básicas do  R-markdown  
+
+* Faça um relatório estudando a validade das provas do ENEM corelacionando as provas com variáveis externas (as próprias provas ou outras variáveis que achar na base)  
+
+* Ao escrever seu relatório use pelo menos:  estilos, negrito, listas.
+* Renderize o relatório escondendo o código.  
+
+* Use os slides e cheetsheet para ajuda-lo nos comandos:  
+<http://www.labape.com.br/rprimi/ds/garrett_grolemund_r_markdown.pdf>
+<https://rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf>
+
+* Bom tranbalho  
+
+
+
+```{r}
+
+```
+

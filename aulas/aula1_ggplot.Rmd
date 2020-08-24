@@ -1,0 +1,378 @@
+---
+title: "ggplot"
+output: html_document
+---
+
+### Lê dados
+
+```{r}
+load("../dados/enem.Rdata")
+```
+
+### Bibliotecas
+
+```{r}
+library(tidyverse)
+```
+
+### Qual a relação entre português e matemática?
+
+```{r}
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT))
+```
+
+-   ggplot(data = <DATA>) + <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+
+### Sua vez
+
+-   Qual a relação entre outras notas (lembre que tem redação) ?
+-   Qual a relação entre a nota de matemática
+
+```{r}
+
+
+```
+
+### Qual a relação entre as provas para meninos e meninas e por tipo de escola ?
+
+```{r}
+  library(sjmisc)
+  frq(enem$TP_SEXO)
+  frq(enem$TP_ESCOLA)
+  frq(enem$TP_DEPENDENCIA_ADM_ESC)
+
+```
+
+```{r}
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO))
+
+```
+
+-   Explore a relação com outras terceiras variáveis. Use outros atributos: *color*: altera a cor de formas que não têm área (pontos e retas); *fill*: altera a cor de formas com área (barras, caixas, densidades, áreas); *size*: altera o tamanho de formas; *type*: altera o tipo da forma, geralmente usada para pontos e *linetype*: altera o tipo da linha.
+
+-   Shapes ![Shapes](../imagens/shapes-1.png)
+
+```{r}
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_DEPENDENCIA_ADM_ESC))
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_ESCOLA))
+
+
+```
+
+-   Qual o erro aqui ?
+
+```{r eval = FALSE}
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT) color = TP_SEXO))
+
+```
+
+-   Veja como a cor é usada aqui
+
+```{r eval = FALSE}
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT), color = "orange")
+
+```
+
+### Uso de facets
+
+```{r}
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO)) +
+  facet_wrap(~TP_SEXO)
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_DEPENDENCIA_ADM_ESC)) +
+  facet_wrap(~TP_DEPENDENCIA_ADM_ESC)
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_DEPENDENCIA_ADM_ESC)) +
+  facet_grid(TP_DEPENDENCIA_ADM_ESC~.)
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_DEPENDENCIA_ADM_ESC)) +
+  facet_grid(.~TP_DEPENDENCIA_ADM_ESC)
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_DEPENDENCIA_ADM_ESC)) +
+  facet_grid(TP_DEPENDENCIA_ADM_ESC~TP_SEXO)
+
+ggplot(data = enem) + 
+  geom_point(
+    mapping = aes(
+      y = NU_NOTA_LC,
+      x = NU_NOTA_MT, 
+      color = TP_DEPENDENCIA_ADM_ESC
+      ), 
+    show.legend = FALSE) +
+  facet_grid(TP_DEPENDENCIA_ADM_ESC~TP_SEXO)
+
+```
+
+### Geoms
+
+-   Estudo e cheatsheet <https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf>
+
+```{r}
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO))
+
+ggplot(data = enem) + 
+  geom_boxplot(mapping = aes(y = NU_NOTA_MT, x = TP_SEXO, color = TP_SEXO))
+
+```
+
+-   Análise de distribuições. Tente manipular `fill` e `color` para fazer esse histograma ficar mais bonito?
+-   Tente ver o help usando `?geom_histogram`
+
+```{r}
+
+ggplot(data = enem) + 
+  geom_histogram(mapping = aes(x = NU_NOTA_MT))
+
+```
+
+-   Visualização de padrões de correlação `geom_smooth`. Note o que foi feito.
+
+```{r}
+ggplot(data = enem) +
+  geom_smooth(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT))
+              
+ggplot(data = enem) +
+  geom_smooth(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, group = TP_SEXO))
+    
+
+ggplot(data = enem) +
+  geom_smooth(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, fill = TP_SEXO))
+ 
+
+```
+
+-   Podemos sobrepor geoms !!
+
+```{r}
+
+ggplot(data = enem) +
+   geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO), alpha = 1/2) +
+   geom_smooth(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, fill = TP_SEXO))
+
+```
+
+-   Note que o grafico acima poderia ser feito assim
+
+```{r}
+
+ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO)) +
+  geom_point(alpha = 1/2) +
+  geom_smooth()
+
+
+```
+
+-   Quando você especifica o mapeamento dentro de uma função `geom_` este será usado localmente no layer criado pelo geom.
+
+```{r}
+
+ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT)) +
+   geom_point(aes(color = TP_SEXO, alpha = 1/2)) +
+   geom_smooth()
+
+
+```
+
+-   Veja que você pode especificar um dataframe específico dentro da função geom
+
+```{r}
+
+ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT)) +
+   geom_point(aes(color = TP_COR_RACA, alpha = 1/2)) +
+   geom_smooth(data = filter(enem, TP_COR_RACA == "Amarela"))
+
+
+```
+
+```{r}
+
+ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT)) +
+   geom_point(aes(color = TP_COR_RACA, alpha = 1/2), show.legend = FALSE) +
+   geom_smooth(data = filter(enem, TP_COR_RACA == "Amarela")) +
+  facet_wrap(~TP_COR_RACA)
+ 
+```
+
+### Transformações estatísticas
+
+-   Veja como fazemos figuras de barras
+
+```{r}
+
+ggplot(data = enem) + 
+  geom_bar(mapping = aes(x = TP_COR_RACA, color = TP_COR_RACA))
+
+ggplot(data = enem) + 
+  geom_bar(mapping = aes(x = TP_COR_RACA, fill = TP_COR_RACA))
+
+
+```
+
+-   Note o formato da base de dados. Eles foram contados antes de serem colocados no gráfico
+
+```{r}
+
+enem %>% select(TP_COR_RACA)
+
+```
+
+O que o ggplot faz? (veja Grolemund & Wickham, 2017, <https://r4ds.had.co.nz/transform.html>)
+
+-   bar charts, histograms, and frequency polygons bin your data and then plot bin counts, the number of points that fall in each bin.
+
+-   smoothers fit a model to your data and then plot predictions from the model.
+
+-   boxplots compute a robust summary of the distribution and then display a specially formatted box.
+
+![](../imagens/visualization-stat-bar.png)
+
+```{r}
+
+ggplot(data = enem) + 
+  geom_bar(mapping = aes(x = TP_COR_RACA, fill = TP_SEXO))
+
+
+```
+
+
+* Veja o código abaixo. Ele faz a cocnta primeiro e depois o gráfico. Note que precisamos indicar o argumento `stat =  "identity"` para dizer ao ggplot que deve considerar os valores como estão na base.  
+
+```{r}
+
+enem %>% 
+  count(TP_COR_RACA) %>% 
+  ggplot() +
+  geom_bar(
+    aes(x = TP_COR_RACA, y = n, fill = TP_COR_RACA), 
+    stat = "identity"
+  )
+
+
+```
+* Como fazer um gráfico de proporção
+
+```{r}
+
+library(scales)
+
+ggplot(data = enem) + 
+  geom_bar(mapping = aes(
+    x =  TP_COR_RACA, 
+    y = stat(prop), 
+    group = 1
+    ))
+
+
+```
+
+```{r}
+
+
+library(scales)
+
+ggplot(data = enem) + 
+  geom_bar(mapping = aes(
+    x =  TP_COR_RACA, 
+    y = stat(prop), 
+    group = 1,
+    )) +
+  scale_y_continuous(labels=percent_format())
+
+
+
+```
+
+
+Grolemund & Wickham (2017): "You can learn which stat a geom uses by inspecting the default value for the stat argument. For example, ?geom_bar shows that the default value for stat is “count”, which means that geom_bar() uses stat_count(). stat_count() is documented on the same page as geom_bar(), and if you scroll down you can find a section called “Computed variables”. That describes how it computes two new variables: count and prop"
+
+### Ajustes de posição 
+
+* O que acontece quando usamos uma segunda variável em `fill`. Por exemplo queremos contar as variáveis raça e genero. Veja o que o ajuste `position` faz:
+```{r}
+
+ggplot( data = enem) +
+ geom_bar(aes(x = TP_COR_RACA,  fill = TP_SEXO))
+
+ggplot( data = enem) +
+ geom_bar(aes(x = TP_COR_RACA,  fill = TP_SEXO),
+    position = "stack")
+
+
+
+```
+
+```{r}
+
+ggplot( data = enem) +
+ geom_bar(aes(x = TP_COR_RACA,  fill = TP_SEXO),
+    position = "identity", alpha = .4
+        )
+
+
+ggplot( data = enem) +
+ geom_bar(aes(x = TP_COR_RACA,  fill = TP_SEXO),
+    position = "fill", alpha = .4
+        )
+
+ggplot( data = enem) +
+ geom_bar(aes(x = TP_COR_RACA,  fill = TP_SEXO),
+    position = "dodge", alpha = .4
+        )
+
+
+```
+
+* Porque esse grafico não funciona?
+```{r}
+
+ggplot(data = enem) + 
+  geom_bar(
+    mapping = aes(
+    x =  TP_COR_RACA, 
+    y = stat(prop), 
+    fill = TP_SEXO,
+    group  = 1
+    ),
+     position = "dodge") +
+  scale_y_continuous(labels=percent_format())
+
+
+```
+
+### Síntese 
+ggplot(data = <DATA>) + 
+  <GEOM_FUNCTION>(
+     mapping = aes(<MAPPINGS>),
+     stat = <STAT>, 
+     position = <POSITION>
+  ) +
+  <COORDINATE_FUNCTION> +
+  <FACET_FUNCTION>
+  
+  
+### Salvando os graficos
+```{r}
+
+ggsave("f1.png")
+
+```
+
+
