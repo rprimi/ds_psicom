@@ -1,0 +1,418 @@
+---
+title: "ggplot 2"
+output: html_document
+---
+
+### Lê dados
+
+```{r}
+load("../dados/enem.Rdata")
+```
+
+### Bibliotecas
+
+```{r}
+library(tidyverse)
+```
+
+### Escalas
+
+* Vamos exa minar as métricas das provas usando as estatísticas descritivas
+
+```{r}
+library(skimr)
+library(psych)
+
+enem %>% select(contains("NU_NOTA")) %>% skim
+enem %>% select(contains("NU_NOTA")) %>% describe
+
+
+```
+
+* E se quiséssemos usar a esccala de 300 a 800?
+
+```{r}
+
+f1 <- ggplot(data = enem, aes(x=NU_NOTA_CN)) + 
+  geom_histogram(
+    color = "purple", 
+    fill = "lightgrey", 
+    bins = 50) +
+  scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800))
+
+f1
+
+```
+
+* Sua vez. Faça a distribuição das outras 3 provas
+```{r}
+
+ f2 <- ggplot(data = enem, aes(x=NU_NOTA_CH)) + 
+  geom_histogram(
+    color = "red", 
+    fill = "lightgrey", 
+    bins = 50) +
+  scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800))
+
+ f2
+
+```
+
+
+```{r}
+
+
+p <- ggplot(data = organdata,
+mapping = aes(x = roads_mean,
+y = donors, color = world))
+p + geom_point() + scale_color_discrete(labels =
+c("Corporatist", "Liberal",
+"Social Democratic", "Unclassified")) +
+labs(x = "Road Deaths",
+y = "Donor Procurement",
+color = "Welfare State")
+
+```
+
+### Juntar graficos diferentes
+
+https://patchwork.data-imaginist.com
+
+```{r}
+
+library(patchwork)
+f1 + f2
+
+f1 / f2
+
+f1 + f2 +  plot_layout(ncol = 1)
+```
+
+
+### Temas
+
+```{r}
+ 
+ f1 +  theme_bw()
+
+ f1 +  theme_classic()
+ 
+ f1 + theme_light()
+ 
+ f1 + theme_minimal()
+
+```
+
+
+### Título e legendas
+
+```{r}
+
+ggplot(data = enem, aes(x=NU_NOTA_MT)) + 
+  geom_histogram(
+    color = "blue", 
+    fill = "lightgrey", 
+    bins = 50) +
+  scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800)) +
+ labs(
+  x = "ENEM Matemática ",
+  y = "Freq.",
+  title = "Distribuição das notas no ENEM",
+  subtitle = "Matemática",
+  caption = "Fonte: microdados do INEP"
+  )
+
+
+```
+### Adicionando geoms
+* Se quiséssemos indicar a média e o desvio padrão 
+
+```{r}
+
+ggplot(data = enem, aes(x=NU_NOTA_MT)) + 
+  geom_histogram(
+    color = "blue", 
+    fill = "lightgrey", 
+    bins = 50) +
+  scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800)) +
+ labs(
+  x = "ENEM Matemática ",
+  y = "Freq.",
+  title = "Distribuição das notas no ENEM",
+  subtitle = "Matemática",
+  caption = "Fonte: microdados do INEP"
+  ) +
+ geom_vline(
+   xintercept=c(
+    mean(enem$NU_NOTA_MT, na.rm=TRUE),
+    mean(enem$NU_NOTA_MT, na.rm=TRUE) + sd(enem$NU_NOTA_MT, na.rm=TRUE),
+    mean(enem$NU_NOTA_MT, na.rm=TRUE) - sd(enem$NU_NOTA_MT, na.rm=TRUE)
+     )
+     )
+
+```
+
+
+
+### Mudando posição de legendas
+
+```{r}
+
+frq(enem$Q002)
+
+
+ggplot(data = enem) +
+  geom_bar(
+    aes(y = NU_NOTA_MT, x = Q002, fill = Q002), 
+      stat = "summary", 
+      fun.y = "mean"
+     ) 
+
+enem %>% 
+  filter(!is.na(Q002) ) %>%
+  ggplot() + geom_bar(
+    aes(y = NU_NOTA_MT, x = Q002, fill = Q002), 
+      stat = "summary", 
+      fun.y = "mean"
+     ) +
+   theme(
+    axis.text.x = element_blank(), 
+    axis.ticks.x = element_blank(),
+    legend.position = "bottom"
+  ) 
+
+
+enem %>% 
+  filter(!is.na(Q002) ) %>%
+  ggplot() + geom_bar(
+    aes(y = NU_NOTA_MT, x = stringr::str_wrap(Q002, 15), fill = Q002), 
+      stat = "summary", 
+      fun.y = "mean", 
+    show.legend = FALSE
+
+     ) + 
+  coord_flip()
+  
+
+
+enem %>% 
+  filter(!is.na(Q002) ) %>%
+  ggplot() + geom_bar(
+    aes(y = NU_NOTA_MT, x = Q002, fill = stringr::str_wrap(Q002, 23)), 
+      stat = "summary", 
+      fun.y = "mean"
+   ) + 
+  theme(
+    axis.text.x = element_blank(), 
+    legend.position = "bottom"
+  )  
+
+
+
+
+```
+
+
+* Vendo a variável estado
+
+```{r}
+
+library(sjlabelled)
+library(sjmisc)
+
+get_label(enem)
+
+get_labels(enem$SG_UF_RESIDENCIA)
+frq(as.character(enem$SG_UF_RESIDENCIA))
+
+
+```
+
+
+
+### Reordenar categorias
+
+```{r}
+
+enem %>% ggplot(data = enem, mapping = aes(x=SG_UF_RESIDENCIA)) +
+  geom_bar()
+
+ enem %>% 
+    mutate(SG_UF_RESIDENCIA = as.character(SG_UF_RESIDENCIA)) %>%
+    ggplot( aes(y = NU_NOTA_MT, x = SG_UF_RESIDENCIA)) +
+    stat_summary(geom = "bar", fun = "median")
+ 
+ 
+ enem %>% 
+  filter(!is.na(Q002)) %>%
+  mutate(
+    Q002 = stringr::str_wrap(Q002, 23)) %>%
+  ggplot() + 
+   geom_bar(
+    aes(
+      y = NU_NOTA_MT, 
+      x = reorder(Q002, NU_NOTA_MT, na.rm = TRUE), 
+      fill = reorder(Q002, NU_NOTA_MT, na.rm = TRUE),
+      ), 
+      stat = "summary", 
+      fun.y = "mean", 
+      show.legend = FALSE
+     ) +
+ 
+  coord_flip() 
+ 
+```
+### Sua vez: tente fazer a figura do desempenho pela escolaridade da mãe ordenando as barras da maior a menor
+
+```{r}
+enem %>% 
+  mutate(SG_UF_RESIDENCIA = as.character(SG_UF_RESIDENCIA)) %>%
+  ggplot() + geom_bar(
+    aes(
+      y = NU_NOTA_MT, 
+      x = reorder(SG_UF_RESIDENCIA, NU_NOTA_MT, na.rm = TRUE), 
+      fill = reorder(SG_UF_RESIDENCIA, NU_NOTA_MT, na.rm = TRUE),
+      ), 
+      stat = "summary", 
+      fun.y = "mean", 
+      show.legend = FALSE
+     ) +
+  coord_flip()
+
+```
+
+### Cores das escalas
+
+* Como controlar as cores mapeadas aos valores das variáveis?
+* Veja https://scales.r-lib.org/index.html
+* http://www.imsbio.co.jp/RGM/R_rdfile?f=RColorBrewer/man/ColorBrewer.Rd&d=R_CC
+
+```{r}
+
+
+library(scale)
+
+colors <- brewer_pal(palette = "Set1")(5)
+show_col(colors)
+
+show_col(hue_pal()(9))
+
+show_col(viridis_pal()(4))
+
+show_col(col_numeric("Blues", domain = NULL)(1:10))
+
+```
+
+https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html
+
+```{r}
+
+colors <- brewer_pal(palette = "Set1")(8)
+
+ enem %>% 
+  filter(!is.na(Q002)) %>%
+  mutate(
+    Q002 = stringr::str_wrap(Q002, 23)) %>%
+  ggplot() + 
+   geom_bar(
+    aes(
+      y = NU_NOTA_MT, 
+      x = reorder(Q002, NU_NOTA_MT, na.rm = TRUE), 
+      fill = reorder(Q002, NU_NOTA_MT, na.rm = TRUE),
+      ), 
+      stat = "summary", 
+      fun.y = "mean", 
+      show.legend = FALSE,
+     alpha = 1/2
+     ) +
+   coord_flip() +
+   scale_fill_manual(values = colors)
+
+```
+
+```{r}
+ggplot(data = enem) + 
+  geom_histogram(aes(x=NU_NOTA_CN, fill = ..x..), bin = 50 ) +
+   scale_fill_distiller(palette = "Blues") +
+  scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800)) 
+ 
+colors <- brewer_pal(palette = "Spectral")(5)
+colors <- brewer_pal(palette = "RdBu")(5)
+
+ggplot(data = enem) + 
+  geom_histogram(aes(x=NU_NOTA_CN, fill = ..x..), bin = 50 ) +
+   scale_fill_gradientn(colors = colors) +
+  scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800)) 
+
+
+```
+
+### Plus:  como fazer um gráfico de distribuição com percentis
+
+* O pacote gggridges
+https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html
+
+```{r}
+
+frq(enem$Q047)
+
+v <- levels(enem$Q047)[c(1, 4)]
+
+library(ggridges)
+
+enem %>% 
+  filter(Q047 == v) %>% 
+  mutate(Q047 = str_wrap(Q047, 20)) %>%
+  ggplot(aes(x = NU_NOTA_MT, y = Q047)) + 
+  stat_density_ridges(
+    bandwidth = 50,
+    quantiles =c(.25, .50,  .75), 
+    quantile_lines = TRUE,
+    alpha = .5,
+    fill = "blue"
+    ) +
+   scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800))
+
+
+enem %>% 
+  filter(Q047 == v) %>% 
+  mutate(Q047 = str_wrap(Q047, 15)) %>%
+  ggplot(aes(x = NU_NOTA_MT, y = Q047, fill = factor(stat(quantile))), alpha = 1/10) + 
+  stat_density_ridges( 
+    geom = "density_ridges_gradient", 
+    calc_ecdf = TRUE, 
+    quantiles = 4, 
+    quantile_lines = TRUE,
+    bandwidth = 25,
+    show.legend = FALSE
+    ) + 
+    scale_fill_brewer(palette = "Spectral") +
+   scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800)) +
+  theme_minimal()
+
+  
+
+```
+
+```{r}
+
+names(enem)
+
+enem %>% 
+  filter(Q047 == v) %>% 
+  mutate(Q047 = str_wrap(Q047, 15)) %>%
+  ggplot(aes(x = mt_scores, y = Q047, fill = factor(stat(quantile))), alpha = 1/10) + 
+  stat_density_ridges( 
+    geom = "density_ridges_gradient", 
+    calc_ecdf = TRUE, 
+    quantiles = 4, 
+    quantile_lines = TRUE,
+    bandwidth = 1,
+    show.legend = FALSE
+    ) + 
+    scale_fill_brewer(palette = "Spectral") +
+   scale_x_continuous(breaks = seq(0, 45, 5), limits = c(0, 45)) +
+  theme_minimal()
+
+```
+

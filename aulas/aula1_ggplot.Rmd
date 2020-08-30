@@ -244,6 +244,9 @@ O que o ggplot faz? (veja Grolemund & Wickham, 2017, <https://r4ds.had.co.nz/tra
 
 ![](../imagens/visualization-stat-bar.png)
 
+
+Grolemund & Wickham (2017): "You can learn which stat a geom uses by inspecting the default value for the stat argument. For example, ?geom_bar shows that the default value for stat is “count”, which means that geom_bar() uses stat_count(). stat_count() is documented on the same page as geom_bar(), and if you scroll down you can find a section called “Computed variables”. That describes how it computes two new variables: count and prop"
+
 ```{r}
 
 ggplot(data = enem) + 
@@ -253,7 +256,7 @@ ggplot(data = enem) +
 ```
 
 
-* Veja o código abaixo. Ele faz a cocnta primeiro e depois o gráfico. Note que precisamos indicar o argumento `stat =  "identity"` para dizer ao ggplot que deve considerar os valores como estão na base.  
+* Veja o código abaixo. Ele faz a conta primeiro e depois o gráfico. Note que precisamos indicar o argumento `stat =  "identity"` para dizer ao ggplot que deve considerar os valores como estão na base.  
 
 ```{r}
 
@@ -273,35 +276,36 @@ enem %>%
 
 library(scales)
 
-ggplot(data = enem) + 
-  geom_bar(mapping = aes(
-    x =  TP_COR_RACA, 
-    y = stat(prop), 
-    group = 1
-    ))
-
 
 ```
 
 ```{r}
-
-
-library(scales)
-
 ggplot(data = enem) + 
   geom_bar(mapping = aes(
     x =  TP_COR_RACA, 
     y = stat(prop), 
-    group = 1,
+   group = 1
+    
     )) +
-  scale_y_continuous(labels=percent_format())
+   scale_y_continuous(labels=percent_format())
 
+
+ggplot(data = enem
+       ) + 
+  geom_bar(
+    mapping = aes(
+      x =  TP_COR_RACA, 
+      y = after_stat(count /sum(count)), 
+      fill = TP_COR_RACA
+    )
+  ) +
+  scale_y_continuous(labels=percent_format())
 
 
 ```
 
 
-Grolemund & Wickham (2017): "You can learn which stat a geom uses by inspecting the default value for the stat argument. For example, ?geom_bar shows that the default value for stat is “count”, which means that geom_bar() uses stat_count(). stat_count() is documented on the same page as geom_bar(), and if you scroll down you can find a section called “Computed variables”. That describes how it computes two new variables: count and prop"
+
 
 ### Ajustes de posição 
 
@@ -320,11 +324,8 @@ ggplot( data = enem) +
 ```
 
 ```{r}
+ 
 
-ggplot( data = enem) +
- geom_bar(aes(x = TP_COR_RACA,  fill = TP_SEXO),
-    position = "identity", alpha = .4
-        )
 
 
 ggplot( data = enem) +
@@ -338,7 +339,45 @@ ggplot( data = enem) +
         )
 
 
+
+
 ```
+
+
+* Como comparar proporções. Veja:
+
+
+```{r}
+ggplot(data = enem
+       ) + 
+  geom_bar(
+    mapping = aes(
+      x =  TP_COR_RACA, 
+      y = after_stat(count /sum(count)), 
+      fill = TP_SEXO
+    ),
+     position = "dodge"
+  ) +
+  scale_y_continuous(labels=percent_format())
+
+
+ggplot(data = enem
+       ) + 
+  geom_bar(
+    mapping = aes(
+      x =  TP_COR_RACA, 
+      y = after_stat(count /sum(count)), 
+      fill = TP_SEXO
+    ),
+     position = "dodge"
+  ) +
+  scale_y_continuous(labels=percent_format()) +
+  facet_grid(.~TP_SEXO)
+
+
+```
+* Desafio: como fazer um gráfico com a soma ser 100% por grupo ?
+
 
 * Porque esse grafico não funciona?
 ```{r}
@@ -351,13 +390,60 @@ ggplot(data = enem) +
     fill = TP_SEXO,
     group  = 1
     ),
-     position = "dodge") +
+    position = "dodge"
+    ) +
   scale_y_continuous(labels=percent_format())
 
 
 ```
+### Sistema de coordenadas
 
-### Síntese 
+```{r}
+
+bar <- ggplot(data = enem
+       ) + 
+  geom_bar(
+    mapping = aes(
+      x =  TP_COR_RACA, 
+      y = after_stat(count /sum(count)), 
+      fill = TP_COR_RACA,
+      
+    ),
+    show.legend = FALSE
+  ) +
+  scale_y_continuous(labels=percent_format())
+  
+
+bar
+
+bar + coord_flip()
+bar + coord_polar()
+
+
+```
+
+
+```{r}
+ggplot(data = enem
+       ) + 
+  geom_bar(
+    mapping = aes(
+      x =  TP_COR_RACA, 
+      y = after_stat(count /sum(count)), 
+      fill = TP_SEXO,
+      
+    ),
+    show.legend = TRUE,
+     position = "dodge"
+  ) +
+  scale_y_continuous(labels=percent_format()) +
+  coord_polar()
+  
+```
+
+
+### Síntese: "The layered grammar of grafics
+
 ggplot(data = <DATA>) + 
   <GEOM_FUNCTION>(
      mapping = aes(<MAPPINGS>),
@@ -367,6 +453,9 @@ ggplot(data = <DATA>) +
   <COORDINATE_FUNCTION> +
   <FACET_FUNCTION>
   
+
+Veja: http://www.labape.com.br/rprimi/ds/garrett_grolemund_ggplot.pdf
+
   
 ### Salvando os graficos
 ```{r}
