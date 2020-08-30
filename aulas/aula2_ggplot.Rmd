@@ -215,11 +215,8 @@ enem %>%
 
 * Vendo a variável estado
 
-<<<<<<< HEAD
 https://cran.r-project.org/web/packages/sjlabelled/vignettes/labelleddata.html
 
-=======
->>>>>>> 7cc42765ae8fe8158d57c9545a9624b99e0f8754
 ```{r}
 
 library(sjlabelled)
@@ -230,17 +227,11 @@ get_label(enem)
 get_labels(enem$SG_UF_RESIDENCIA)
 frq(as.character(enem$SG_UF_RESIDENCIA))
 
-<<<<<<< HEAD
-```
-
-
-=======
 
 ```
 
 
 
->>>>>>> 7cc42765ae8fe8158d57c9545a9624b99e0f8754
 ### Reordenar categorias
 
 ```{r}
@@ -273,6 +264,7 @@ enem %>% ggplot(data = enem, mapping = aes(x=SG_UF_RESIDENCIA)) +
   coord_flip() 
  
 ```
+
 ### Sua vez: tente fazer a figura do desempenho pela escolaridade da mãe ordenando as barras da maior a menor
 
 ```{r}
