@@ -1,0 +1,42 @@
+---
+title: "Análise exploratória de dados"
+author: "Ricardo Primi"
+date: "8/29/2020"
+output: html_document
+---
+
+### Análise exploratória de dados
+
+Veja: <https://r4ds.had.co.nz/exploratory-data-analysis.html#introduction-3>
+
+Grolemund & Wickham (2017):
+
+"1. Generate questions about your data. 2. Search for answers by visualising, transforming, and modelling your data. 3. Use what you learn to refine your questions and/or generate new questions."
+
+\"*A variable is a quantity, quality, or property that you can measure.* A value is the state of a variable when you measure it. The value of a variable may change from measurement to measurement. *An observation is a set of measurements made under similar conditions* Tabular data is a set of values, each associated with a variable and an observation. \*Tabular data is tidy if each value is placed in its own "cell", each variable in its own column, and each observation in its own row.\"
+
+-   Análise da variação (visualização da distribuição dos valores):
+
+    -   variável contínua: `geom_histogram()`, `geom_freqpoly()` e `geom_density()`
+    -   variável categoria: `geom_bar()`
+
+-   Análise de covariância/correlação
+
+    -   variável categória vs contínua: `geom_freqpoly()`, `geom_density()`, `geom_boxplot()`
+
+![](../imagens/eda-boxplot.png)
+   -   duas variáveis categóricas: `geom_count()`, `geom_tile()`
+   -   duas variáveis contínuas: `geom_point()`, `geom_smooth()` e `geom_hex()`
+```{r}
+```
+
+
+http://www.cookbook-r.com/Graphs/
+
+
+### Exercício
+
+* Examine as variáveis contidas no banco de dados do ENEM 
+* Pense em uma pergunta envolvendo pelo menos duas variáveis
+* Pense em visualizar os dados buscando visualizar os dados dessas duas variáveis buscando responder sua pergunta.
+* Escreva um relatório simples com sua análise apresentando os graficos e explicando o que encontrou.
