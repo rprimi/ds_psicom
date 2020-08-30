@@ -27,6 +27,7 @@ Bem vindo ao Curso!!
 
 ![](imagens/rmarkdown.png){width="80"} ![](imagens/tidyverse.png){width="80"} ![](imagens/ggplot2.png){width="80"}
 
+
 #### Aula 3 (31/08/2020) Análise exploratória gráfica com ggplot
 
 -   ggplot
