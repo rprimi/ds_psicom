@@ -59,21 +59,6 @@ f1
 ```
 
 
-```{r}
-
-
-p <- ggplot(data = organdata,
-mapping = aes(x = roads_mean,
-y = donors, color = world))
-p + geom_point() + scale_color_discrete(labels =
-c("Corporatist", "Liberal",
-"Social Democratic", "Unclassified")) +
-labs(x = "Road Deaths",
-y = "Donor Procurement",
-color = "Welfare State")
-
-```
-
 ### Juntar graficos diferentes
 
 https://patchwork.data-imaginist.com
