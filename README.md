@@ -26,10 +26,18 @@ Bem vindo ao Curso!!
 -   ggplot <https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf> <https://rstudio.cloud/learn/cheat-sheets>
 
 
-<img src="imagens/rmarkdown.png" width="80"/> <img src="imagens/tidyverse.png" width="80"/> <img src="imagens/ggplot2.png" width="80"/>
-
-
 
 #### Aula 3 (31/08/2020) Análise exploratória gráfica com ggplot
 
 -   ggplot
+
+#### Aula 4 (14/09/2020) Transformação de dados com dplyr
+
+-   dplyr
+
+-   dplyr cheatsheet <https://github.com/rstudio/cheatsheets/raw/master/data-transformation.pdf>
+
+
+
+<img src="imagens/rmarkdown.png" width="80"/> <img src="imagens/tidyverse.png" width="80"/> <img src="imagens/ggplot2.png" width="80"/> <img src="imagens/dplyr.png" width="80"/>
+

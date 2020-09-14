@@ -17,7 +17,7 @@ library(tidyverse)
 
 ### Escalas
 
-* Vamos exa minar as métricas das provas usando as estatísticas descritivas
+* Vamos examinar as métricas das provas usando as estatísticas descritivas
 
 ```{r}
 library(skimr)
@@ -384,7 +384,6 @@ enem %>%
 
 ```{r}
 
-names(enem)
 
 enem %>% 
   filter(Q047 == v) %>% 
