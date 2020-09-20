@@ -1,0 +1,28 @@
+---
+title: "tidyr"
+author: "Ricardo Primi"
+date: "9/12/2020"
+output: html_document
+---
+### Problema 
+
+* Qual o processo de resposta em itens antônimos em testes de auto-relato? Há evidência de que um item negativo é o contrário de um item positivo ?
+
+
+### Bibliotecas e dados
+
+```{r}
+library(readxl)
+library(tidyverse)
+
+base <- read_excel("../dados/bd_senna_rdz_sal.xlsx", sheet = "bd")
+item_dic <- read_excel("../dados/bd_senna_rdz_sal.xlsx", sheet = "dic_itens")
+sem_pairs <- read_excel("../dados/bd_senna_rdz_sal.xlsx", sheet = "pairs")
+
+```
+
+
+
+
+
+

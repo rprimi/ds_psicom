@@ -31,13 +31,14 @@ Bem vindo ao Curso!!
 
 -   ggplot
 
-#### Aula 4 (14/09/2020) Transformação de dados com dplyr
+#### Aula 4 (14-21/09/2020) Transformação de dados com dplyr e tidyr
 
--   dplyr
+-   dplyr e tidyr
 
 -   dplyr cheatsheet <https://github.com/rstudio/cheatsheets/raw/master/data-transformation.pdf>
-
-
-
-<img src="imagens/rmarkdown.png" width="80"/> <img src="imagens/tidyverse.png" width="80"/> <img src="imagens/ggplot2.png" width="80"/> <img src="imagens/dplyr.png" width="80"/>
+  
+-   tidyr cheatsheet <https://github.com/rstudio/cheatsheets/blob/master/data-import.pdf>
+  
+  
+<img src="imagens/rmarkdown.png" width="80"/> <img src="imagens/tidyverse.png" width="80"/> <img src="imagens/ggplot2.png" width="80"/> <img src="imagens/dplyr.png" width="80"/> <img src="imagens/tidyr.png" width="80"/>
 

@@ -57,7 +57,7 @@ load("../dados/enem.Rdata")
   filter(enem, SG_UF_NASCIMENTO %in% c("RS", "SP"))
   filter(enem, str_detect(TP_ST_CONCLUSAO, "cursando"))
 
-  library(sjmisc)
+  library(sjmifiltersc)
   frq(enem$TP_ENSINO)
   
   enem %>%  
@@ -85,6 +85,12 @@ Grolemund & Wickham (2017, <https://r4ds.had.co.nz/transform.html>, 5.2):
 
 "The order of operations doesn’t work like English. You can’t write filter(flights, month == (11 | 12)), which you might literally translate into “finds all flights that departed in November or December”. Instead it finds all months that equal 11 | 12, an expression that evaluates to TRUE. In a numeric context (like here), TRUE becomes one, so this finds all flights in January, not November or December. This is quite confusing! A useful short-hand for this problem is x %in% y"
 
+```{r}
+
+filter(flights, month == 11 | 
+       | 12))
+
+```
 
 
 ![](../imagens/logic_comp.png)  
@@ -338,6 +344,7 @@ enem %>% select(NU_NOTA_MT) %>% pull
  
   
 ```
+
 * Criar tabelas normativas
 ```{r}
 
