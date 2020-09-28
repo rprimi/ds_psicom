@@ -143,8 +143,9 @@ Grolemund & Wickham (2017):
   # We don't know!
   
   
-  
   is.na(NA)
+  
+  ! is.na(v)
 
 ```
 
@@ -161,7 +162,46 @@ Grolemund & Wickham (2017):
 
 ```{r}
  
+ lect(enem, NU_NOTA_CN, NU_NOTA_CH)
+
+ select(enem, NU_NOTA_CN:NU_NOTA_REDACAO)
  
+ select(enem, NU_NOTA_CN:NU_NOTA_MT)
+ 
+ df <- enem %>% select(NU_NOTA_CN:NU_NOTA_MT)
+  
+  
+ select(df, -c(NU_NOTA_CN, NU_NOTA_LC))
+ 
+ select(enem, contains("NU_NOTA"))
+ 
+ dplyr::select(enem, contains("NU_NOTA"))
+ 
+ pi <- 58
+ 
+ pi
+ 
+ v[3]
+ 
+ df[, 3 ]
+ 
+ names(enem)
+
+   v <- names(enem)
+  v[ c(1, 2, 45:58) ]
+  v <- v[ c(1, 2, 45:58) ]
+  
+   df <- enem %>% select(all_of(v))
+ 
+   enem %>% select(v)
+   
+   library(psych)
+   
+   enem %>% 
+     select(NU_NOTA_CN:NU_NOTA_MT) %>%
+     corr.test()
+   
+
 ```
 
 ### Exemplos: `arrange`
@@ -170,6 +210,13 @@ Grolemund & Wickham (2017):
 
 ```{r}
  
+ arrange(enem, desc(NU_NOTA_MT))
+
+  enem %>%
+     arrange(desc(NU_NOTA_MT)) %>% 
+     select(TP_SEXO, NU_NOTA_MT, mt_scores, everything()) %>%
+     view
+
 
 ```
 
@@ -180,7 +227,36 @@ Grolemund & Wickham (2017):
 
 ```{r}
 
+enem %>% 
+  select(NU_NOTA_CN:NU_NOTA_MT) %>%
+  mutate(nota_geral = (NU_NOTA_CN + NU_NOTA_CH + NU_NOTA_LC + NU_NOTA_MT) /4)
+
+ enem <- enem %>% 
+  mutate(nota_geral = (NU_NOTA_CN + NU_NOTA_CH + NU_NOTA_LC + NU_NOTA_MT) /4)
  
+  enem %>% 
+    select(NU_NOTA_CN:NU_NOTA_MT) %>%
+    mutate(
+      mean_cn = mean(NU_NOTA_CN, na.rm = TRUE),
+      mean_mt = mean(NU_NOTA_MT, na.rm = TRUE)
+    )
+  
+  enem %>% 
+    select(NU_NOTA_CN:NU_NOTA_MT) %>%
+    mutate(
+      zCN = scale(NU_NOTA_CN),
+      zCH = scale(NU_NOTA_CH),
+      zLC = scale(NU_NOTA_LC),
+      zMT = scale(NU_NOTA_MT),
+      z_geral = (zCN + zCH+ zLC + zMT)/4,
+      qi_geral = (z_geral*15) +100,
+      rank = min_rank(z_geral),
+      percentil_g =  percent_rank(z_geral),
+      percentil_qi =  percent_rank(qi_geral)
+      ) %>%
+     arrange(desc(qi_geral))
+
+  scale(enem$NU_NOTA_CH, center= 100, scale = 15)
 
 ```
 ### Exemplos: `group_by`
@@ -189,14 +265,69 @@ slides
 
 ![](../imagens/group_by.png){width=400px}  
 ```{r}
-
-
+  
+  group_by(enem, SG_UF_RESIDENCIA)
+  
+  enem %>% group_by(SG_UF_RESIDENCIA) %>% tally() %>% arrange(desc(n))
+  
+  df <- enem
+  df
+  df %>% tally
+  
+  df <- enem %>% group_by(SG_UF_RESIDENCIA) 
+  df
+  df %>% tally
+  
+  group_keys(df)
+  
+  group_indices(df)
+  
+  group_vars(df)
+     
+  df %>% ungroup() %>% tally
+  
+  
 ```
 ### Exemplos `summarise`
 
 ![](../imagens/summarise.png){width=400px}  
 
 ```{r}
+  
+ enem %>% 
+  group_by(TP_DEPENDENCIA_ADM_ESC) %>%
+  summarise(
+    m_mt = mean(NU_NOTA_MT, na.rm=TRUE),
+    m_cn = mean(NU_NOTA_CN, na.rm=TRUE),
+    n = n()
+   )
+
+enem %>% 
+    group_by(TP_DEPENDENCIA_ADM_ESC) %>%
+    summarise(
+      across(NU_NOTA_CN:NU_NOTA_MT, mean, na.rm=TRUE)
+     )
+
+
+ enem %>% 
+    group_by(TP_DEPENDENCIA_ADM_ESC) %>%
+    summarise(
+      across(contains("NU_NOTA"), ~mean(., na.rm=TRUE))
+     )  
+ 
+  
+  enem %>% 
+    group_by(TP_DEPENDENCIA_ADM_ESC) %>%
+    summarise(
+      across(contains("NU_NOTA"), 
+        list(
+          mean = ~mean(.x, na.rm = TRUE),
+          sd = ~sd(.x, na.rm=TRUE),
+          min = ~min(.x, na.rm = TRUE), 
+          max = ~max(.x, na.rm = TRUE)
+        )  
+      )
+    )
   
  
 ```
@@ -206,20 +337,88 @@ slides
 * Selecionar uma coluna como vetor de um `dataframe`  
 ```{r}
 
+v1 <- enem %>% select(NU_NOTA_MT)
+
+v2 <- enem$NU_NOTA_MT
+
+enem %>% .$NU_NOTA_MT
+
+enem %>% pull(NU_NOTA_MT)
+
 
 ```
 
 * Calcular matriz de correlação  
+
+* https://github.com/tidymodels/corrr
+* https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html
+
 ```{r}
+ 
+ enem %>% 
+    select( contains("NU_NOTA")) %>%
+    corr.test()
+
+ enem %>% 
+    select( contains("NU_NOTA")) %>%
+   describe()
+
 
  
+ 
+  library(corrr)
+   
+  enem %>% 
+    select( NU_NOTA_CN:NU_NOTA_MT) %>%
+    correlate %>%
+    network_plot(min_cor = .2)
+  
+  
+    library(corrplot)
+  
+   enem %>% 
+      select( NU_NOTA_CN:NU_NOTA_MT) %>%
+      cor(use = "pairwise") %>%
+      corrplot(order = "hclust", addrect = 2)
+
   
 ```
 * Criar tabelas normativas
 ```{r}
 
+ enem %>% 
+   select(NU_NOTA_CN:NU_NOTA_MT) %>%
+    mutate( 
+      across(everything(), scale)
+      )
+
+  library(scales)
+  ?scales::rescale
  
+  enem %>% 
+   select(NU_NOTA_CN:NU_NOTA_MT) %>%
+    mutate( across(everything(), scales::rescale, to=c(0, 100))) %>%
+    summarise( across(everything(), mean, na.rm=TRUE))
+
+  
+  rescale01 <- function(x) {
+    rng <- range(x, na.rm = TRUE)
+    (x - rng[1]) / (rng[2] - rng[1])
+  }
+
+ enem %>% 
+   select(NU_NOTA_CN:NU_NOTA_MT) %>%
+    mutate( across(everything(), rescale01))
+
+  
+  
+  
+
     # Como fazer esse grafico com uma curva por prova ?
+    # 
+    # 
+    # 
+    # 
 
 ```
 
