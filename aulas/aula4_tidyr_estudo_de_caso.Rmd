@@ -21,6 +21,65 @@ sem_pairs <- read_excel("../dados/bd_senna_rdz_sal.xlsx", sheet = "pairs")
 
 ```
 
+### Dicionário de itens
+
+```{r}
+
+item_dic <- item_dic %>% left_join(sem_pairs, by = c("coditem2"="CodItem"))
+
+names(item_dic)
+
+
+item_dic %>% select(item_text, factor3, pole, seman_pairs) %>%
+  filter(!is.na(seman_pairs)) %>%
+  arrange(factor3,pole, seman_pairs) %>%
+  view
+
+
+item_dic_senna <- item_dic[1:59, ]
+
+library(sjmisc)
+frq(item_dic_senna$pole)
+
+item_dic_senna %>% 
+  group_by(factor0, pole) %>%
+  tally()
+
+names(item_dic_senna)
+
+ base %>% 
+  select(item_dic_senna$coditem) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "coditem",
+    values_to = "r"
+    ) %>%
+  left_join(item_dic_senna, by = "coditem") %>%
+  filter(!is.na(r), factor0 !="chk") %>%
+  mutate(
+   factor0 = factor(factor0, levels = c("O", "C", "E", "A", "N"))
+    ) %>%
+  select(factor0, pole, r) %>%
+  group_by(factor0, pole, r) %>% 
+  tally(name = "freq") %>%
+  mutate(
+    pole = factor(pole),
+    tot = sum(freq),
+    prop = freq/tot
+   ) %>%  
+    ggplot(aes(y=prop, x=r, fill = factor0)) +
+      geom_histogram(stat= "identity", alpha=.5, color ="darkgray") +
+      scale_fill_brewer(palette = "Spectral") +
+      facet_grid(pole~factor0) +
+      theme_minimal()
+  
+  
+  
+
+
+
+```
+
 
 
 

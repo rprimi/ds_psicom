@@ -72,7 +72,6 @@ pollution <- tribble(
    "Beijing_small",     56
 )
 
-
 pollution %>% separate(city, sep = "_", into = c("city", "size"))
 
 pollution %>% 
@@ -86,7 +85,7 @@ E se quiséssemos fazer o contrário
 
 pollution2 <- pollution %>% separate(city, sep = "_", into = c("city", "size"))
 
-pollution2 %>% unite(col = "city", city, size, sep = "_", )
+pollution2 %>% unite(col = "city", city, size, sep = "_" )
 
 
 ```
@@ -116,7 +115,6 @@ y <- tribble(
 left_join(x, y, by = "key")
 right_join(x, y, by = "key")
 full_join(x, y, by = "key")
-
 
 
 ```
@@ -204,22 +202,21 @@ left_join(x, y, by = "key")
 ![](../imagens/join-many-to-many.png)  
 ### Na prática
 
-* Se queiséssemos comparar a distribuição dos esccores nas 4 provas do ENEM em um gráfico comum ?
+* Se quiséssemos comparar a distribuição dos esccores nas 4 provas do ENEM em um gráfico comum ?
 
 https://www.researchgate.net/publication/263860877_Rasch-Master%27s_Partial_Credit_Model_in_the_Assessment_of_Children%27s_Creativity_in_Drawings
 
 * Vamos fazer a distribuição das notas por sexo  (note que podemos ver como o parâmetro de "polimento" `adjust` funciona)
 ```{r}
 
-
 load("../dados/enem.Rdata")
 
 
 enem %>% ggplot(aes(x = NU_NOTA_MT, fill = TP_SEXO)) +
-          geom_density(alpha = .50 )
+          geom_density( alpha = .50)
 
 enem %>% ggplot(aes(x = NU_NOTA_MT, fill = TP_SEXO)) +
-          geom_density(alpha = .50, adjust = 1/5 )
+          geom_density(alpha = .50, adjust = 1/10)
 
 enem %>% ggplot(aes(x = NU_NOTA_LC, fill = TP_SEXO)) +
           geom_density(alpha = .50)
@@ -234,6 +231,7 @@ enem %>% ggplot(aes(x = NU_NOTA_MT, fill = TP_SEXO)) +
 ```{r}
 
 library(scales)
+
 enem %>% 
   select(TP_SEXO, NU_NOTA_CN:NU_NOTA_MT) %>%
   pivot_longer(
@@ -243,7 +241,7 @@ enem %>%
     ) %>%
    ggplot(aes(x = escr_tri, fill = enem)) +
     geom_density(alpha = .50) +
-    scale_fill_brewer(palette = "Spectral") +
+    scale_fill_grey() +
     scale_x_continuous(breaks = scales::breaks_width(100)) +
     facet_wrap(~TP_SEXO, ncol = 1)
   

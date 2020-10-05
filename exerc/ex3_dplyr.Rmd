@@ -1,0 +1,62 @@
+---
+title: "Exercício 3. Manipulação e transformação de dados com dplyr"
+author: "Ricardo Primi"
+date: "8/10/2020"
+output: html_document
+---
+
+* Utilize o banco de dados do ENEM para esse exercício
+
+#### Separe uma base do enem somente com os casos de São Paulo
+```{r}
+  filter(enem, TP_SEXO == "Feminino" )
+```
+
+#### Selecione somentas as  notas da redação.
+```{r}
+ df <- enem %>% select( NU_NOTA_CN:NU_NOTA_MT)
+```
+
+#### Crie uma nota global combinando as quatro provas e a redação
+```{r}
+
+enem %>%
+  rowwise %>%
+  mutate(enem_total = mean(c_across(NU_NOTA_CN:NU_NOTA_MT))) %>%
+  relocate(enem_total, NU_NOTA_CN:NU_NOTA_MT)
+
+
+```
+
+#### Organize a base com as notas da maior até a menor 
+```{r}
+  enem %>% 
+    arrange(desc(NU_NOTA_MT)) %>%
+    select(TP_SEXO, NU_NOTA_MT, mt_scores, everything()) %>%
+    view
+
+```
+#### Nessa base quantos alunos por estado temos na base ?
+
+```{r}
+
+ enem %>% group_by(TP_SEXO) %>% tally()
+
+```
+
+
+#### Calcule a média e desvio padrão, mínimo e máximo por estado da nota que você calculou
+```{r}
+  enem %>% 
+    group_by(TP_DEPENDENCIA_ADM_ESC) %>%
+    summarise(
+      across(contains("NU_NOTA"), 
+        list(
+          mean = ~mean(.x, na.rm = TRUE),
+          sd = ~sd(.x, na.rm=TRUE),
+          min = ~min(.x, na.rm = TRUE), 
+          max = ~max(.x, na.rm = TRUE)
+        )  
+      )
+    )
+```

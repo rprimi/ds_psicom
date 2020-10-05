@@ -9,7 +9,7 @@ Bem vindo ao Curso!!
 
 -   Slides: <http://www.labape.com.br/rprimi/ds/t0_introducao.pptx>
 
-#### Aula 2 (24/08/2020) R, R-studio e análise exploratória gráfica com ggplot
+#### Aula 2 e 3 (24 e 31/08/2020) R, R-studio e análise exploratória gráfica com ggplot
 
 -   R e R-Studio
 
@@ -26,12 +26,7 @@ Bem vindo ao Curso!!
 -   ggplot <https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf> <https://rstudio.cloud/learn/cheat-sheets>
 
 
-
-#### Aula 3 (31/08/2020) Análise exploratória gráfica com ggplot
-
--   ggplot
-
-#### Aula 4 (14-21/09/2020) Transformação de dados com dplyr e tidyr
+#### Aula 4-6 (14, 21 e 28/09/2020) Transformação de dados com dplyr e tidyr
 
 -   dplyr e tidyr
 
@@ -40,5 +35,16 @@ Bem vindo ao Curso!!
 -   tidyr cheatsheet <https://github.com/rstudio/cheatsheets/blob/master/data-import.pdf>
   
   
-<img src="imagens/rmarkdown.png" width="80"/> <img src="imagens/tidyverse.png" width="80"/> <img src="imagens/ggplot2.png" width="80"/> <img src="imagens/dplyr.png" width="80"/> <img src="imagens/tidyr.png" width="80"/>
+#### Aula 7 (5/10/2020) Programando em R com purrr
+
+-   Tipos de dados, programando em R, funções, controle e loops 
+
+-   O pacote purrr
+
+-   List columns 
+
+-   purrr cheatsheet <https://github.com/rstudio/cheatsheets/blob/master/purrr.pdf>  
+  
+  
+<img src="imagens/rmarkdown.png" width="80"/> <img src="imagens/tidyverse.png" width="80"/> <img src="imagens/ggplot2.png" width="80"/> <img src="imagens/dplyr.png" width="80"/> <img src="imagens/tidyr.png" width="80"/>  <img src="imagens/purrr.png" width="80"/> 
 

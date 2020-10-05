@@ -10,6 +10,7 @@ output: html_document
 ![](../imagens/datastruc.png)
 
 ![](../imagens/data-structures-overview.png)
+![](../imagens/summary-tree-atomic.png)  
 
 
 * Vetores
