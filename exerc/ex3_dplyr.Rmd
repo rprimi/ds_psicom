@@ -9,10 +9,13 @@ output: html_document
 
 #### Separe uma base do enem somente com os casos de São Paulo
 ```{r}
+
   filter(enem, TP_SEXO == "Feminino" )
+
+
 ```
 
-#### Selecione somentas as  notas da redação.
+#### Selecione somentas as notas da redação.
 ```{r}
  df <- enem %>% select( NU_NOTA_CN:NU_NOTA_MT)
 ```

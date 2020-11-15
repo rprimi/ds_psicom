@@ -6,8 +6,13 @@ output: html_document
 ---
 ### Problema 
 
-* Qual o processo de resposta em itens antônimos em testes de auto-relato? Há evidência de que um item negativo é o contrário de um item positivo ?
+* Qual o processo de resposta em itens antônimos em testes de auto-relato? 
+    distribuição inversa 
+    efeito principal nas distribuições -> polo 
+* Há evidência de que um item negativo é o contrário/reverso de um item positivo?
+* interação entre polo e domínio
 
+* desejabilidade social 
 
 ### Bibliotecas e dados
 
@@ -27,12 +32,13 @@ sem_pairs <- read_excel("../dados/bd_senna_rdz_sal.xlsx", sheet = "pairs")
 
 item_dic <- item_dic %>% left_join(sem_pairs, by = c("coditem2"="CodItem"))
 
-names(item_dic)
+
+ names(item_dic)
 
 
 item_dic %>% select(item_text, factor3, pole, seman_pairs) %>%
   filter(!is.na(seman_pairs)) %>%
-  arrange(factor3,pole, seman_pairs) %>%
+  arrange(factor3, pole, seman_pairs) %>%
   view
 
 
@@ -47,18 +53,28 @@ item_dic_senna %>%
 
 names(item_dic_senna)
 
+
+```
+
+
+
+```{r}
+
  base %>% 
-  select(item_dic_senna$coditem) %>%
+  select(cod_suj, item_dic_senna$coditem) %>%
+  
   pivot_longer(
-    cols = everything(),
-    names_to = "coditem",
+    cols = p.2.1:p.3.26,
+    names_to = "item_senna",
     values_to = "r"
-    ) %>%
-  left_join(item_dic_senna, by = "coditem") %>%
+    ) %>% 
+  left_join(item_dic_senna, by = c("item_senna"= "coditem")) %>%
   filter(!is.na(r), factor0 !="chk") %>%
+    
   mutate(
    factor0 = factor(factor0, levels = c("O", "C", "E", "A", "N"))
     ) %>%
+  
   select(factor0, pole, r) %>%
   group_by(factor0, pole, r) %>% 
   tally(name = "freq") %>%
@@ -67,21 +83,78 @@ names(item_dic_senna)
     tot = sum(freq),
     prop = freq/tot
    ) %>%  
-    ggplot(aes(y=prop, x=r, fill = factor0)) +
-      geom_histogram(stat= "identity", alpha=.5, color ="darkgray") +
+    
+  ggplot(aes(y=prop, x=r, fill = factor0)) +
+      geom_histogram(stat = "identity", alpha=.5, color ="darkgray") +
+      geom_density(stat = "identity", alpha = 1/5,color = "gray") +
       scale_fill_brewer(palette = "Spectral") +
       facet_grid(pole~factor0) +
       theme_minimal()
   
   
   
+```
 
+```{r}
 
-
+ base %>% 
+  select(cod_suj, item_dic_senna$coditem) %>%
+  
+  pivot_longer(
+    cols = p.2.1:p.3.26,
+    names_to = "item_senna",
+    values_to = "r"
+    ) %>% 
+  left_join(item_dic_senna, by = c("item_senna"= "coditem")) %>%
+  filter(!is.na(r), factor0 !="chk") %>%
+    
+  mutate(
+   factor0 = factor(factor0, levels = c("O", "C", "E", "A", "N")),
+   pole = factor(pole) ,
+   r = factor(r)
+    ) %>%
+    
+  ggplot(aes( x=r, fill = factor0)) +
+      geom_histogram(stat="count", alpha=.5, color ="darkgray") +
+      scale_fill_brewer(palette = "Spectral") +
+      facet_grid(pole~factor0) +
+      theme_minimal()
+  
 ```
 
 
+```{r}
 
+ bd_bjmsp <- readRDS("../dados/bd_bjmsp.rds")
+ item_dic_c <- readRDS("../dados/item_dic_c.rds")
+ 
+ names(bd_bjmsp)
 
+ bd_bjmsp %>% 
+  select(ExamineeID, sv2.209_C_1_Achv:sv2.256_C_0_SofR) %>%
+  pivot_longer(
+    cols = sv2.209_C_1_Achv:sv2.256_C_0_SofR,
+    names_to = "coditem",
+    values_to = "r"
+    ) %>% 
+  left_join(item_dic_c, by = c("coditem" = "item_labels")) %>%
+  filter(!is.na(r), !is.na(seman_pairs)) %>%
+  select(facet_final,  pole_final, r) %>%
+  group_by(facet_final, pole_final, r) %>% 
+  tally(name = "freq") %>%
+  mutate(
+    pole_final = factor(pole_final),
+    tot = sum(freq),
+    prop = freq/tot
+   ) %>%  
+    
+  ggplot(aes(y=prop, x=r, fill = facet_final)) +
+      geom_histogram(stat = "identity", alpha=.5, color ="darkgray") +
+      geom_density(stat = "identity", alpha = 1/5,color = "gray") +
+      scale_fill_brewer(palette = "Spectral") +
+      facet_grid(pole_final~facet_final) +
+      theme_minimal()
+  
 
+```
 
