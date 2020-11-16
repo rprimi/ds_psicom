@@ -56,3 +56,5 @@ Bem vindo ao Curso!!
 -   [Uso do word-to-vec (word embeddings) para análise de textos](http://www.labape.com.br/rprimi/ds/cap_primi_v0_rev.pdf)
 -   [Rosenbusch, H., Wanders, F., & Pit, I. L. (2020). The Semantic Scale Network: An online tool to detect semantic overlap of psychological scales and prevent scale redundancies. Psychological Methods, 25(3), 380-392. http://dx.doi.org.stanford.idm.oclc.org/10.1037/met0000244](http://www.labape.com.br/rprimi/ds/The%20Semantic%20Scale%20Network.pdf)
 
+<img src="imagens/rmarkdown.png" width="80"/> <img src="imagens/tidyverse.png" width="80"/> <img src="imagens/ggplot2.png" width="80"/> <img src="imagens/dplyr.png" width="80"/> <img src="imagens/tidyr.png" width="80"/>  <img src="imagens/purrr.png" width="80"/> 
+
