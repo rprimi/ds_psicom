@@ -63,12 +63,12 @@ library(stringr)
  
 ```
 
-
   
 ### Tokenize
 ```{r}
 
  library(tidytext)
+
 # Tokenize palvras 
   frameworks3 <- frameworks2 %>% 
     ungroup  %>%
@@ -91,7 +91,6 @@ frameworks3  %>% count(words, sort = TRUE)
 Snowball: http://snowball.tartarus.org/algorithms/english/stop.txt
 NLTK: http://www.nltk.org/
 Stopwords ISO: https://github.com/stopwords-iso
-
 
 
 ```{r}
@@ -199,7 +198,7 @@ De Stanford https://nlp.stanford.edu/projects/glove/
   
   tsne <- frameworks5 %>% 
   select(3:302) %>%
-  Rtsne( perplexity = 18) 
+  Rtsne( perplexity = 13) 
   
   frameworks5 <- frameworks5 %>% bind_cols(as.data.frame(tsne$Y))
   
@@ -262,8 +261,154 @@ De Stanford https://nlp.stanford.edu/projects/glove/
       scale_color_brewer() +
        theme(legend.position = "none") 
 
-   
-   
 
 ```
 
+### Latent Semantic Analyais via Topic modeling (Latent Dirichlet Allocation - LDA )
+* Usaremos o pacote text2vec
+* Site: http://text2vec.org/topic_modeling.html
+* Usando palavras
+
+
+* Criando a matriz termo-documento 
+
+```{r}
+  # install.packages('servr') 
+  library(stringr)
+  library(text2vec)
+ 
+  frameworks2$rwn_id <- as.integer(rownames(frameworks2))
+
+  prep_fun <- tolower
+  tok_fun <- word_tokenizer
+
+  it = itoken(
+      frameworks2$definition, 
+      ids = frameworks2$rwn_id, 
+      preprocessor = prep_fun, 
+      tokenizer = tok_fun, 
+      progressbar = FALSE
+      )
+  
+  vocab <- create_vocabulary(it,
+      stopwords = stopwords$words) %>%
+     prune_vocabulary(
+      term_count_min = 1, 
+      doc_proportion_max = 0.8
+      )
+  
+  glimpse(vocab)
+  
+  vocab$term
+  vocab$term_count
+  vocab$doc_count %>% frq
+  
+  
+  vectorizer <- vocab_vectorizer(vocab)
+  
+  dtm = create_dtm(it, vectorizer)
+  
+  dim(dtm)
+
+  # define tfidf model
+  tfidf = TfIdf$new()
+  
+  # fit model to train data and transform train data with fitted model
+  dtm_tfidf = fit_transform(dtm, tfidf)
+
+ lda_model = LDA$new(
+   n_topics = 12, 
+   doc_topic_prior = 0.1,
+   topic_word_prior = 0.01
+   )
+
+  doc_topic_distr = 
+    lda_model$fit_transform(
+    x = dtm_tfidf, 
+    n_iter = 1000, 
+    convergence_tol = 0.001, 
+    n_check_convergence = 25, 
+    progressbar = FALSE
+    )
+ 
+  lda_model$get_top_words(n = 12, 
+    topic_number = c(1:12), lambda = 0.2)
+  
+    
+  lda_model$plot()
+    
+  
+```
+
+###### LDA usando bigramas 2 a 3
+
+
+```{r}
+
+  it = itoken(
+      frameworks2$definition, 
+      ids = frameworks2$rwn_id, 
+      preprocessor = prep_fun, 
+      tokenizer = tok_fun, 
+      progressbar = FALSE
+      )
+  
+  vocab = create_vocabulary(
+    it, 
+    stopwords = stopwords$words,
+    ngram = c(3, 3)
+    ) %>%
+    prune_vocabulary(
+      term_count_min = 1, 
+      doc_proportion_max = 0.8)
+  
+  dim(vocab)
+  
+  vectorizer = vocab_vectorizer(vocab)
+  dtm = create_dtm(it, vectorizer)
+  
+  dim(dtm)
+
+  # define tfidf model
+  tfidf = TfIdf$new()
+  # fit model to train data and transform train data with fitted model
+  dtm_tfidf = fit_transform(dtm, tfidf)
+
+  dim(dtm_tfidf )
+
+ lda_model = LDA$new(
+   n_topics =8, 
+   doc_topic_prior = 0.1,
+   topic_word_prior = 0.01
+   )
+
+  doc_topic_distr = 
+    lda_model$fit_transform(
+    x = dtm_tfidf, n_iter = 1000, 
+    convergence_tol = 0.001, 
+    n_check_convergence = 25, 
+    progressbar = FALSE
+    )
+   
+  barplot(
+    doc_topic_distr[2, ], xlab = "topic", 
+    ylab = "proportion", ylim = c(0, 1), 
+    names.arg = 1:ncol(doc_topic_distr)
+    )
+    
+  lda_model$get_top_words(n = 12, 
+    topic_number = c(1:4), lambda = 0.2)
+  
+    
+  lda_model$plot()
+ 
+```
+
+
+#### Term’s inverse document frequency (idf)
+
+_Term’s inverse document frequency (idf), which decreases the weight for commonly used words and increases the weight for words that are not used very much in a collection of documents. This can be combined with term frequency to calculate a term’s tf-idf (the two quantities multiplied together), the frequency of a term adjusted for how rarely it is used_ (p. 31)
+
+_The idea of tf-idf is to find the important words for the content of each document by decreasing the weight for commonly used words and increasing the weight for words that are not used very much in a collection or corpus of documents_ (p. 37)
+
+$$idf_{termo} = \mbox{ln} \frac{n_{documentos}}{n_{documentos.contendo.termo}}$$
