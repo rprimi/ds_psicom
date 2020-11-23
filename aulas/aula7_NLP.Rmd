@@ -13,10 +13,8 @@ output: html_document
 
 ### Bibliotecas
 ```{r}
-
  library(readxl)
  library(tidyverse)
-
 
 ```
 
@@ -30,12 +28,13 @@ output: html_document
 ### Explorando dados
 ```{r}
 
-library(sjmisc)
-
-frq(frameworks$system)
-frq(frameworks$domain)
-frq(frameworks$facet)
-
+  library(sjmisc)
+  
+  frq(frameworks$system)
+  frq(frameworks$domain)
+  frq(frameworks$facet)
+  
+  length(unique(frameworks$facet))
 
 ```
 
@@ -43,7 +42,7 @@ frq(frameworks$facet)
 
 ```{r}
 
-library(stringr)
+ library(stringr)
 
   frameworks <- frameworks %>%
     mutate(
@@ -52,7 +51,7 @@ library(stringr)
       definition = str_to_lower(definition)
   )
 
-  frameworks$definition[1:3] %>% paste(collapse =  " ")
+  frameworks$definition[1:3] %>% paste( collapse = " ")
   
   frameworks2 <- frameworks %>% 
     group_by(system, facet) %>%
@@ -71,18 +70,19 @@ library(stringr)
 
 # Tokenize palvras 
   frameworks3 <- frameworks2 %>% 
+    select(system, facet, definition) %>%
     ungroup  %>%
     unnest_tokens(words, definition)
 
   
- length(unique(frameworks3$words))
+  length(unique(frameworks3$words))
 
 
 ```
 ### Explorando as palavras
 ```{r}
 
-frameworks3  %>% count(words, sort = TRUE)
+ frameworks3  %>% count(words, sort = TRUE)
 
 ```
 
@@ -100,7 +100,7 @@ Stopwords ISO: https://github.com/stopwords-iso
       stopwords::data_stopwords_nltk$en,
       stopwords::data_stopwords_stopwordsiso$en
       )
-  )
+   )
 
   stopwords  <-tibble(
     words = words
@@ -108,15 +108,16 @@ Stopwords ISO: https://github.com/stopwords-iso
 
   
 # Palavras gerais   
-    frameworks3 %>%
+  frameworks3 %>%
         count(words, sort = TRUE) %>%
         filter(n > 50 ) %>%
-        mutate(words = reorder(words, n)) %>%
+       mutate(words = reorder(words, n)) %>%
        ggplot(aes(words, n)) +
         geom_col() +
         xlab(NULL) +
         coord_flip()
  
+    
        
 # Remove stopwords
      frameworks3 %>%
@@ -132,16 +133,15 @@ Stopwords ISO: https://github.com/stopwords-iso
 # Word cloud   
    library(wordcloud)
 
-   frameworks3 %>%
+   temp <-  frameworks3 %>%
         anti_join(stopwords) %>%
-        count(words) %>%
-        with(wordcloud(words, n, 
+        count(words)  %>%
+        with(
+           wordcloud(words, n, 
           colors = brewer.pal(12, "Set1"),
-            max.words = 100)) 
-
-    stopwords[221, "words"] <- "pra"
-    stopwords[222, "words"] <- "dá"
-
+          max.words = 100)
+        )
+ 
 
 ```
 
@@ -165,7 +165,7 @@ De Stanford https://nlp.stanford.edu/projects/glove/
     col_names = FALSE, 
     progress = TRUE)
   
-  names(glove_wv_300)[1]<-"words"
+  names(glove_wv_300)[1] <-"words"
   names(glove_wv_300)[2:301]<-paste("d", 1:300, sep= "")
   
   glove_wv_300[2000:4000, ] %>% view
@@ -174,101 +174,169 @@ De Stanford https://nlp.stanford.edu/projects/glove/
 
 ```{r}
 
+ load("~/Dropbox (Personal)/Ciencia de dados/ds_psicom/aulas/frameworks4.RData")
+
+```
+
+
+
+```{r}
+
  frameworks4 <- frameworks3 %>% 
   left_join( glove_wv_300, by = "words") %>%
   filter(!is.na(d1))
 
  save(frameworks4, file = "frameworks4.RData")
-
+ 
 ```
 
 ### Visualizando clusters usando tsn-e 
+
+
 * https://lvdmaaten.github.io/tsne/
 * https://distill.pub/2016/misread-tsne/
 
+Efeito do hiperparâmetro "perplexity": 
+* https://distill.pub/2016/misread-tsne/
+
+* Retirando palavras duplicadas e stopwords e preparando os documentos
+
 ```{r}
 
-  library(Rtsne)
+ 
+  frameworks4[ , c(1, 2, 4)] %>% 
+    arrange(system, facet, words) %>%
+    view
+ 
+  s <- duplicated(frameworks4[ , c(1, 2, 4)])
+  s %>% table
 
   frameworks5 <- frameworks4 %>% 
+    filter(! duplicated(frameworks4[ , c(1, 2, 4)]) ) %>%
+    anti_join(stopwords) %>%
     group_by(system, facet) %>%
     summarise(
       across(d1:d300, mean, na.rm=TRUE)
-     )
+     ) %>%
+   mutate(
+     documento = str_wrap(paste(system, facet, sep = "_"), width = 23 ),
+     system = factor(system)
+   )
+  
+ 
+
+```
+
+
+* Redução de dimensionalidade via tsne
+
+```{r}
+ 
+  library(Rtsne)
+
+  names(frameworks5)
   
   tsne <- frameworks5 %>% 
+  ungroup() %>%
   select(3:302) %>%
-  Rtsne( perplexity = 13) 
+  Rtsne( perplexity = 8) 
+  
+  tsne$Y
   
   frameworks5 <- frameworks5 %>% bind_cols(as.data.frame(tsne$Y))
   
-  
   names(frameworks5)
   
-   library(ggrepel)
+  library(ggrepel)
   library(ggthemes)
   library(RColorBrewer)
+  library(scales)
   
-  ggplot(data = frameworks5,  
-            mapping = aes(
-             y = V1,
-             x = V2,
-            color = system) 
-           ) +
-          
-         geom_point()  +
-                  
-         geom_text_repel(
-            aes(label=facet), 
-            size=2, vjust=-1.2
-            ) +
-       theme_minimal() +
-      scale_color_brewer() +
-       theme(legend.position = "none") 
+  unique(frameworks5$system)
   
-   frameworks5 %>%
-    filter( system == "MACM") %>%
-    ggplot( mapping = aes(
-             y = V1,
-             x = V2) 
-           ) +
-          
-         geom_point()  +
-                  
-         geom_text_repel(
-            aes(label=facet), 
-            size=2, vjust=-1.2
-            ) +
-       theme_minimal() +
-      scale_color_brewer() +
-       theme(legend.position = "none") 
+ # install.packages('unikn')  
+  library(unikn)        
+  
+
+  cores18 <-  c(
+    pal_unikn_pair, pal_unikn_web[1:2]
+    ) %>% 
+    flatten_chr
+  
+  show_col(cores18)
+  
+  show_col(RColorBrewer::brewer.pal(18, "Set1"))
+  show_col(RColorBrewer::brewer.pal(9, "Spectral"))
+  show_col(RColorBrewer::brewer.pal(12, "Paired"))
+  
+  cores18 <-  c(
+    RColorBrewer::brewer.pal(9, "Spectral"), 
+    RColorBrewer::brewer.pal(9, "Paired")
+    ) 
+  
+  getwd()
+  
+  f1 <- ggplot(data = frameworks5,  
+    mapping = aes(
+      y = V1,
+      x = V2,
+      color = system) 
+      ) +
+    geom_point()  +
+    geom_text_repel(
+      aes(label=documento), 
+        size=2, vjust=-1.2
+        ) +
+    theme_minimal() +
+    scale_color_manual(values = cores18) +
+    theme(legend.position = "none") 
+  
+  ggsave(filename = "f1.jpeg", device = "jpeg",
+         width = 29, height = 21, units = "cm" )
   
   
-   frameworks5 %>%
-    filter( system == "OECD") %>%
-    ggplot( mapping = aes(
-             y = V1,
-             x = V2) 
-           ) +
-          
-         geom_point()  +
-                  
-         geom_text_repel(
-            aes(label=facet), 
-            size=2, vjust=-1.2
-            ) +
-       theme_minimal() +
-      scale_color_brewer() +
-       theme(legend.position = "none") 
 
 
 ```
 
+* Visualizando sistemas
+
+```{r}
+
+  
+   f2 <- frameworks5 %>%
+    filter( (system == "MACM" |  system == "OECD")) %>%
+    ggplot( mapping = aes(
+             y = V1,
+             x = V2,
+             color = system
+             ) 
+           ) +
+          
+         geom_point()  +
+                  
+         geom_text_repel(
+            aes(label=facet), 
+            size=2, vjust=-1.2
+            ) +
+       theme_minimal() +
+    scale_color_manual(values = cores18[1:2]) +
+    theme(legend.position = "none") +
+  
+  
+  ggsave(filename = "f2.jpeg", device = "jpeg",
+         width = 29, height = 21, units = "cm" )
+  
+  
+```
+
+
+
 ### Latent Semantic Analyais via Topic modeling (Latent Dirichlet Allocation - LDA )
+
 * Usaremos o pacote text2vec
 * Site: http://text2vec.org/topic_modeling.html
 * Usando palavras
-
 
 * Criando a matriz termo-documento 
 
@@ -282,13 +350,16 @@ De Stanford https://nlp.stanford.edu/projects/glove/
   prep_fun <- tolower
   tok_fun <- word_tokenizer
 
-  it = itoken(
+  it <- itoken(
       frameworks2$definition, 
       ids = frameworks2$rwn_id, 
       preprocessor = prep_fun, 
       tokenizer = tok_fun, 
-      progressbar = FALSE
+      progressbar = TRUE
       )
+  
+  class(it)
+  glimpse(it)
   
   vocab <- create_vocabulary(it,
       stopwords = stopwords$words) %>%
@@ -299,10 +370,11 @@ De Stanford https://nlp.stanford.edu/projects/glove/
   
   glimpse(vocab)
   
+  class(vocab)
+  
   vocab$term
   vocab$term_count
   vocab$doc_count %>% frq
-  
   
   vectorizer <- vocab_vectorizer(vocab)
   
@@ -322,7 +394,7 @@ De Stanford https://nlp.stanford.edu/projects/glove/
    topic_word_prior = 0.01
    )
 
-  doc_topic_distr = 
+  doc_topic_distr <-  
     lda_model$fit_transform(
     x = dtm_tfidf, 
     n_iter = 1000, 
@@ -405,6 +477,43 @@ De Stanford https://nlp.stanford.edu/projects/glove/
 ```
 
 
+### Classificando palavras muito parecidas 
+
+```{r}
+
+
+ load("~/Dropbox (Personal)/Ciencia de dados/ds_psicom/aulas/frameworks4.RData")
+
+
+
+   frameworks4 <- frameworks4 %>% 
+    filter(!duplicated(frameworks4[ , c(1, 2, 4)]) ) %>%
+    anti_join(stopwords)
+  
+  names(frameworks4)
+  # Análise de 100 clusters
+  d   <- dist(frameworks4[ , 5:304], method="euclidean") 
+  2951 / 5
+  cluster  <- hclust(d, method="ward.D2")
+ 
+  grp590 <- cutree(cluster, k = 590)
+  
+  
+   frameworks4 <- frameworks4 %>%
+     mutate(grp590 =  grp590)
+   
+    frameworks4 %>% 
+      arrange(c) %>% 
+      select(c(305, 4, 1:3)) %>% 
+      view
+    
+    library(sjmisc)
+   
+    frameworks4 %>% select(grp590) %>% frq
+ 
+
+```
+
 #### Term’s inverse document frequency (idf)
 
 _Term’s inverse document frequency (idf), which decreases the weight for commonly used words and increases the weight for words that are not used very much in a collection of documents. This can be combined with term frequency to calculate a term’s tf-idf (the two quantities multiplied together), the frequency of a term adjusted for how rarely it is used_ (p. 31)
@@ -412,3 +521,97 @@ _Term’s inverse document frequency (idf), which decreases the weight for commo
 _The idea of tf-idf is to find the important words for the content of each document by decreasing the weight for commonly used words and increasing the weight for words that are not used very much in a collection or corpus of documents_ (p. 37)
 
 $$idf_{termo} = \mbox{ln} \frac{n_{documentos}}{n_{documentos.contendo.termo}}$$
+
+```{r}
+
+
+
+  frameworks4 <-  frameworks4 %>% 
+   mutate(um = 1) %>%
+   group_by(system, facet, words) %>%
+   mutate(freq = sum(um)) %>%
+   ungroup() %>%
+    mutate(
+     documento = str_wrap(paste(system, facet, sep = "_"), width = 23 ),
+     system = factor(system)
+    )
+  
+
+ 
+  frameworks4 <- frameworks4 %>% 
+  bind_tf_idf(term = words, document = documento, n = freq)
+    
+  names(frameworks4)
+  
+  frameworks4 %>% select(-c(5:304)) %>% arrange(tf_idf) %>% view
+  
+  hist( frameworks4$tf_idf)
+  
+   frameworks4  %>% 
+     ggplot(aes(x=tf_idf)) + 
+     geom_histogram(color = "white", binwidth = .02) +
+     scale_x_continuous(limits = c(0, 3))
+   
+   
+```
+
+
+
+```{r}
+
+
+
+
+  frameworks5 <-  frameworks4 %>%
+    filter(tf_idf > 0.08) %>%
+    group_by(system, facet, documento) %>%
+    summarise(
+      across(d1:d300, mean, na.rm=TRUE)
+     ) 
+  
+
+names(frameworks5)
+
+  tsne <- frameworks5 %>% 
+  select(3:302) %>%
+  Rtsne( perplexity = 8) 
+  
+  frameworks5 <- frameworks5 %>% bind_cols(as.data.frame(tsne$Y))
+  
+  names(frameworks5)
+  
+  library(ggrepel)
+  library(ggthemes)
+  library(RColorBrewer)
+  library(scales)
+  
+ # install.packages('unikn')  
+  library(unikn)        
+  
+
+ 
+  cores18 <-  c(
+    RColorBrewer::brewer.pal(9, "Spectral"), 
+    RColorBrewer::brewer.pal(9, "Paired")
+    ) 
+  
+  
+  f3 <- ggplot(data = frameworks5,  
+    mapping = aes(
+      y = V1,
+      x = V2,
+      color = system) 
+      ) +
+    geom_point()  +
+    geom_text_repel(
+      aes(label=documento), 
+        size=2, vjust=-1.2
+        ) +
+    theme_minimal() +
+    scale_color_manual(values = cores18) +
+    theme(legend.position = "none") 
+  
+  ggsave(filename = "f3.jpeg", device = "jpeg",
+         width = 29, height = 21, units = "cm" )
+
+```
