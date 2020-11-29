@@ -1,0 +1,274 @@
+---
+title: "Aula 8 Intro ao Deep Learning"
+author: "Ricardo Primi"
+date: "11/29/2020"
+output: html_document
+---
+### Introdução ao deep learning com um "toydataset"
+* Esse bando de dados temos as respostas do teste de criatividade "usos" convidando os estudantes a pensarem novos usos - usos criativos para uma caixa de papelão.  
+
+* Juízes pontuaram cada resposta em uma escala de 1 (pouco criativo) a 5 (muito criativo)  
+
+* Vamos explorar o uso de DL para desenvolver um algoritmos de correção automática.
+
+### Bibliotecas
+
+* É preciso instalar o pacote  `keras` que roda o Python por trás das cortinas.
+
+```{r}
+  library(readxl)
+  library(tidyverse)
+
+  library(psych)
+  library(keras)
+
+  library(tm)
+  library(SnowballC)
+  library(quanteda)
+
+  library(sjmisc)
+  
+  library(RColorBrewer)
+  library(scales)
+
+```
+
+### Dados
+```{r}
+
+ usos <- readRDS("../dados/usos_dl.RDS") 
+
+```
+
+### Explorando banco
+```{r}
+
+ names(usos)
+
+ frq(usos$num_correções)
+ 
+ usos %>% ggplot(aes(x=av)) + geom_histogram(binwidth = .5, color = "white", fill = "blue")
+
+
+```
+
+
+#### Prepara Document Feature Matrix  com o pacote  `quanteda` 
+
+```{r}
+ 
+
+# Create dfm    
+    corpus <- corpus(usos$resposta)
+    dfm <- dfm(corpus, remove = stopwords("portuguese"), tolower = TRUE, 
+               remove_punct = TRUE
+               )
+    dfm <- dfm_sort(dfm, decreasing = TRUE, margin = c("features"))
+    dfm <- dfm_tfidf(dfm, scheme_tf = "prop")
+     
+    dfm
+    summary(dfm)
+    
+    dfm <- as.matrix(dfm)
+    dim(dfm)
+   
+
+```
+
+### Modelo 0: Regressão linear usadno a TFIDF das palavras como preditores da nota
+
+* Separa amostra de treino e validação 
+```{r}
+    
+    # Shuffle data    
+    set.seed(4)
+    
+    indices <- sample(1:dim(dfm)[1])    
+    
+    prop_train <- .82
+    train_indices <- 1: round(prop_train*dim(dfm)[1], 0)
+    val_indices <-  (round(prop_train*dim(dfm)[1], 0)+1) : dim(dfm)[1]
+    
+    x_train <- dfm[indices[train_indices], ]
+    y_train <- usos[indices[train_indices], ]$av
+    
+   # y_train <- to_one_hot(y_train)
+    
+    x_val <- dfm[indices[val_indices], ]
+    y_val <-  usos[indices[val_indices], ]$av
+    
+    dim(x_train)
+    dim(x_val)
+  
+```
+
+* Especifica e treina o modelo
+```{r}
+  
+  model_lm <- keras_model_sequential() %>%
+    layer_dense(
+      units = 1,
+      activation='linear', 
+      kernel_initializer="zero", 
+      input_shape = c(558)
+    )
+      
+  
+  model_lm %>% compile(
+    optimizer = "adam",
+    loss = "mse",
+    metrics = c("mae")
+    )
+
+    history_lm <- model_lm %>% fit(
+      x_train,
+      y_train,
+      epochs = 500,
+      batch_size = 80,
+      validation_data = list(x_val, y_val)
+    )
+     
+     plot(history_lm)
+    
+```
+
+* Explora os resultados
+
+```{r}
+
+   predictions <- model_lm %>% predict(x_val)
+
+   df_result <-   usos[indices[val_indices], ]  %>% 
+       bind_cols(predictions = predictions)
+  
+  corr.test(df_result[ , 8:9])
+   
+  library(corrr)
+   
+  df_result  %>% 
+    select( av, predictions) %>%
+    correlate %>%
+    shave %>%
+    fashion
+  
+
+   colors <- brewer_pal(palette = "Spectral")(4)
+
+  
+  
+    df_result %>%
+    ggplot( aes(x = predictions, y = av, color = av) ) +
+        geom_point( alpha = 1/2) +
+        geom_smooth(method = "lm") +
+        geom_smooth(color = "red") +
+        scale_color_gradientn(colors = colors)  +
+        theme_minimal()
+  
+  df_result %>% group_by(id) %>%
+    select(av, predictions) %>%
+    summarise( mutate( across(everything(), mean))) %>%
+    select(-id) %>%
+     correlate %>%
+    shave %>%
+    fashion
+  
+  df_result %>% group_by(id) %>%
+    select(av, predictions) %>%
+    summarise( mutate( across(everything(), mean))) %>%
+     ggplot( aes(x = predictions, y = av, color = av) ) +
+        geom_point( alpha = 1/2) +
+        geom_smooth(method = "lm") +
+        geom_smooth(color = "red") +
+        scale_color_gradientn(colors = colors)  +
+        theme_minimal()
+     
+```
+
+### Modelo 1: Deeep Learning Feully Conneccted Neural Network  usadno a TFIDF das palavras como preditores da nota
+
+
+* Define o modelo e treina
+```{r}
+
+  model_nn <- keras_model_sequential() %>%
+    layer_dense(
+      units = 80,  
+      activation = "relu", 
+      input_shape = c(558), 
+      kernel_regularizer = regularizer_l2(0.001)
+    ) %>%
+    layer_dropout(rate = 0.5) %>%
+    layer_dense(
+      units = 50, 
+      kernel_regularizer = regularizer_l2(0.001),
+      activation = "relu"
+      ) %>%
+    layer_dropout(rate = 0.5) %>%
+    layer_dense(units = 1)
+
+
+  model_nn %>% compile(
+        optimizer = "rmsprop",
+        loss = "mse",
+        metrics = c("mae")
+    )
+  
+  history <- model_nn %>% 
+    fit(
+      x_train,
+      y_train,
+      epochs = 100,
+      batch_size = 40,
+      validation_data = list(x_val, y_val)
+    )
+
+    plot(history)
+
+```
+
+* Avalia os resultados
+```{r}
+   predictions <- model_nn %>% predict(x_val)
+
+   df_result <-   usos[indices[val_indices], ]  %>% 
+       bind_cols(predictions = predictions)
+  
+  corr.test(df_result[ , 8:9])
+   
+  library(corrr)
+   
+  df_result  %>% 
+    select( av, predictions) %>%
+    correlate %>%
+    shave %>%
+    fashion
+  
+
+    df_result %>%
+    ggplot( aes(x = predictions, y = av, color = av) ) +
+        geom_point( alpha = 1/2) +
+        geom_smooth(method = "lm") +
+        geom_smooth(color = "red") +
+        scale_color_gradientn(colors = colors)  +
+        theme_minimal()
+  
+  df_result %>% group_by(id) %>%
+    select(av, predictions) %>%
+    summarise( mutate( across(everything(), mean))) %>%
+    select(-id) %>%
+     correlate %>%
+    shave %>%
+    fashion
+  
+  df_result %>% group_by(id) %>%
+    select(av, predictions) %>%
+    summarise( mutate( across(everything(), mean))) %>%
+     ggplot( aes(x = predictions, y = av, color = av) ) +
+        geom_point( alpha = 1/2) +
+        geom_smooth(method = "lm") +
+        geom_smooth(color = "red") +
+        scale_color_gradientn(colors = colors)  +
+        theme_minimal()
+
+```
+

@@ -412,7 +412,7 @@ Efeito do hiperparâmetro "perplexity":
   
 ```
 
-###### LDA usando bigramas 2 a 3
+### LDA usando bigramas 2 a 3
 
 
 ```{r}
@@ -556,7 +556,6 @@ $$idf_{termo} = \mbox{ln} \frac{n_{documentos}}{n_{documentos.contendo.termo}}$$
 ```
 
 
-
 ```{r}
 
 
@@ -615,3 +614,10 @@ names(frameworks5)
          width = 29, height = 21, units = "cm" )
 
 ```
+
+### Exerccício
+
+* Escolha uma base de dados com textos e faça o processo de análise descrito acima até a parte do wordcloud
+
+
+
