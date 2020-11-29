@@ -61,5 +61,5 @@ Bem vindo ao Curso!!
 -   Slides : <http://www.labape.com.br/rprimi/ds/deep_learning.pptx>
 
 
-<img src="imagens/rmarkdown.png" width="80"/> <img src="imagens/tidyverse.png" width="80"/> <img src="imagens/ggplot2.png" width="80"/> <img src="imagens/dplyr.png" width="80"/> <img src="imagens/tidyr.png" width="80"/>  <img src="imagens/purrr.png" width="80"/> 
+<img src="imagens/rmarkdown.png" width="80"/> <img src="imagens/tidyverse.png" width="80"/> <img src="imagens/ggplot2.png" width="80"/> <img src="imagens/dplyr.png" width="80"/> <img src="imagens/tidyr.png" width="80"/>  <img src="imagens/purrr.png" width="80"/> <img src="imagens/keras.png" width="80"/> 
 
