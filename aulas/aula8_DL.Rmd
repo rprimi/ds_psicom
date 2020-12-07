@@ -4,12 +4,10 @@ author: "Ricardo Primi"
 date: "11/29/2020"
 output: html_document
 ---
-### Introdução ao deep learning com um "toydataset"
+### Introdução ao deep learning com um "toy dataset"
 * Esse bando de dados temos as respostas do teste de criatividade "usos" convidando os estudantes a pensarem novos usos - usos criativos para uma caixa de papelão.  
-
 * Juízes pontuaram cada resposta em uma escala de 1 (pouco criativo) a 5 (muito criativo)  
-
-* Vamos explorar o uso de DL para desenvolver um algoritmos de correção automática.
+* Vamos explorar o uso de DL para desenvolver um algoritmos de correção automática.  
 
 ### Bibliotecas
 
@@ -52,8 +50,7 @@ output: html_document
 
 ```
 
-
-#### Prepara Document Feature Matrix  com o pacote  `quanteda` 
+### Prepara Document Feature Matrix  com o pacote  `quanteda` 
 
 ```{r}
  
@@ -231,6 +228,279 @@ output: html_document
    predictions <- model_nn %>% predict(x_val)
 
    df_result <-   usos[indices[val_indices], ]  %>% 
+       bind_cols(predictions = predictions)
+  
+  corr.test(df_result[ , 8:9])
+   
+  library(corrr)
+   
+  df_result  %>% 
+    select( av, predictions) %>%
+    correlate %>%
+    shave %>%
+    fashion
+  
+
+    df_result %>%
+    ggplot( aes(x = predictions, y = av, color = av) ) +
+        geom_point( alpha = 1/2) +
+        geom_smooth(method = "lm") +
+        geom_smooth(color = "red") +
+        scale_color_gradientn(colors = colors)  +
+        theme_minimal()
+  
+  df_result %>% group_by(id) %>%
+    select(av, predictions) %>%
+    summarise( mutate( across(everything(), mean))) %>%
+    select(-id) %>%
+     correlate %>%
+    shave %>%
+    fashion
+  
+  df_result %>% group_by(id) %>%
+    select(av, predictions) %>%
+    summarise( mutate( across(everything(), mean))) %>%
+     ggplot( aes(x = predictions, y = av, color = av) ) +
+        geom_point( alpha = 1/2) +
+        geom_smooth(method = "lm") +
+        geom_smooth(color = "red") +
+        scale_color_gradientn(colors = colors)  +
+        theme_minimal()
+
+```
+
+
+### Modelo 2: LSTM, word embeddings e transfer learning  
+
+* Nesse modelo treinaremos uma rede LSTM usando _word embeddings_ como representação das palavras  
+* Usaremos wordvectors em português do NILC já treinados:  (http://www.nilc.icmc.usp.br/nilc/index.php/repositorio-de-word-embeddings-do-nilc#) . Isso é chamado transferência de aprendizagem  
+
+
+* Passo 1: Prepara sequencias para análise LSTM e busca os vetores  
+```{r}
+
+  # Chollet p. 170
+
+  respostas <- str_to_lower(usos$resposta)
+ 
+  source("http://www.labape.com.br/rprimi/ds/remove_acentos.R")
+  respostas  <- rm_accent(str = respostas)
+  
+   
+  tokenizer <- text_tokenizer(lower = TRUE, num_words = 595) %>% 
+      fit_text_tokenizer(respostas)
+  sequences <- texts_to_sequences(tokenizer, respostas)
+  word_index <- tokenizer$word_index
+ 
+  names(word_index)
+  class(word_index)
+  map_dbl(sequences, length) %>% hist
+  
+  library(skimr)
+  map_dbl(sequences, length) %>% skim()
+  map_dbl(sequences, length)
+  
+  class(word_index)
+
+  
+  hist(map_dbl(sequences, length))
+   glimpse(word_index)
+  
+  word_index[1]
+  
+  word_index[sequences[[1]]]
+  
+  respostas[1]
+  
+
+
+```
+
+* Prepra word vectors 
+```{r}
+  
+  vocab <- tibble(
+     word = names(word_index)
+   )
+
+  load("/Users/rprimi/Dropbox (Personal)/Ciencia de dados/nilc_wv_glove_600d.RData")
+ 
+  nilc_wv_glove_600d$word <- rm_accent(str = nilc_wv_glove_600d$word)
+ 
+  s <-  duplicated( nilc_wv_glove_600d$word ) 
+
+  vocab <- vocab %>% left_join(nilc_wv_glove_600d[!s, ], by = "word")
+ 
+  vocab %>% filter(is.na(d1)) %>% view
+ 
+  saveRDS(vocab, file = "vocab.RDS")
+
+```
+
+#### Prepare pre-trained embeddings
+
+```{r}
+
+# Setting the embedding matrix 
+  vocab <- readRDS("../dados/vocab.RDS")
+  vocab <- as.data.frame(vocab)
+  rownames(vocab) <- vocab$word 
+ 
+
+# Function adapted from Chalot book
+# 
+  prepare_embedding_matrix <- function(
+    num_words, 
+    EMBEDDING_DIM, 
+    word_index
+    ) {
+    
+    MAX_NUM_WORDS = num_words
+    embedding_matrix <- matrix(0L, nrow = num_words+1, ncol = EMBEDDING_DIM)
+      
+      for (word in names(word_index)) {
+        index <- word_index[[word]]
+        if (index >= MAX_NUM_WORDS)
+          next
+        embedding_vector <- as.numeric(vocab[word, 2:601])
+        if (!is.null(embedding_vector)) {
+          # words not found in embedding index will be all-zeros.
+          embedding_matrix[index+1,] <- embedding_vector
+        }
+      }
+    
+   
+      
+      embedding_matrix
+    }
+ 
+  
+# Creates embedding matrix
+    embedding_matrix <- prepare_embedding_matrix(
+      num_words = 585, 
+      EMBEDDING_DIM = 600,
+      word_index = word_index
+        )
+
+# Fills empty rows with random number  
+    rnd <- runif(n=sum(is.na(embedding_matrix)), min = 0, max = .04)
+    embedding_matrix[is.na(embedding_matrix)] <- rnd 
+
+# Test it     
+   table(is.na(embedding_matrix))
+
+# See shape of embedding matrix and first row (needs to be zero, don't know why) 
+# https://github.com/rstudio/keras/issues/302)   
+   
+   dim(embedding_matrix)
+   embedding_matrix[1, ]
+   
+   
+
+```
+
+
+#### Preparing tensors analysis
+
+```{r}
+    
+    hist(map_dbl(sequences, length))
+
+# Shuffle data    
+    set.seed(8)
+    
+    indices <- sample(1:length(sequences))    
+    
+    prop_train <- .82
+    maxlen <- 5
+    
+    train_indices <- 1: round(prop_train*length(sequences), 0)
+    val_indices <- (round(prop_train*length(sequences), 0)+1):length(sequences)
+
+   
+    x_train <- pad_sequences(sequences[indices[train_indices]], maxlen = maxlen)
+    x_val <- pad_sequences(sequences[indices[val_indices]], maxlen = maxlen)    
+
+    y_train <- usos$av[indices[train_indices]] 
+    y_val <-  usos$av[indices[val_indices]] 
+    
+    dim(x_train)
+    dim(x_val)
+    
+    length(y_train)
+    length(y_val)
+    
+    
+  
+```
+
+#### Model arquictecture definition: rnn on top of pre-trained word embeddings
+```{r}
+
+
+### Embedding and fully connected nn
+
+    max_words = 585
+    embedding_dim = 600
+    
+    dim(embedding_matrix)
+
+# lstm model    
+#  model <- keras_model_sequential() %>%
+     layer_embedding(
+         input_dim = max_words +1, 
+         output_dim = embedding_dim , 
+         weights = list(embedding_matrix), 
+         input_length = maxlen, 
+         trainable = FALSE ) %>%
+    layer_lstm(units = 64, recurrent_dropout = 0.4, dropout =.5) %>%
+    layer_dense(units = 1,  kernel_regularizer = regularizer_l2(0.001)) 
+ 
+ 
+# 
+# 
+# 
+    model_lstm <- keras_model_sequential() %>%
+     layer_embedding(
+         input_dim = max_words +1, 
+         output_dim = embedding_dim , 
+         weights = list(embedding_matrix), 
+         input_length = maxlen, 
+         trainable = FALSE ) %>%
+    layer_lstm(units = 80, recurrent_dropout = 0.5, dropout =.5) %>%
+    layer_dense(units = 1,  kernel_regularizer = regularizer_l2(0.001)) 
+ 
+ 
+    summary(model_lstm)
+ 
+    
+    model_lstm %>% compile(
+        optimizer = "rmsprop",
+        loss = "mse",
+        metrics = c("mae")
+    )
+    history <- model_lstm %>% 
+      fit(
+      x_train,
+      y_train,
+      epochs =80,
+      batch_size = 38,
+      validation_data = list(x_val, y_val)
+    )
+    
+    
+    plot(history)
+
+```
+
+
+
+* Avalia os resultados
+```{r}
+  
+  predictions <- model_lstm %>% predict(x_val)
+
+  df_result <-   usos[indices[val_indices], ]  %>% 
        bind_cols(predictions = predictions)
   
   corr.test(df_result[ , 8:9])
