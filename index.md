@@ -1,37 +1,65 @@
-## Welcome to GitHub Pages
+## Ciência de Dados em Psicometria
 
-You can use the [editor on GitHub](https://github.com/rprimi/ds_psicom/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Universidade São Francisco (USF) Prof. Ricardo Primi
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Bem vindo ao Curso!!
 
-### Markdown
+#### Aula 0 (17/08/2020) Introdução: data science, machine learning e deep learnig
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+-   Slides: <http://www.labape.com.br/rprimi/ds/t0_introducao.pptx>
 
-```markdown
-Syntax highlighted code block
+#### Aula 1 e 2 (24 e 31/08/2020) R, R-studio e análise exploratória gráfica com ggplot
 
-# Header 1
-## Header 2
-### Header 3
+-   R e R-Studio
 
-- Bulleted
-- List
+    -   <https://cran.r-project.org>
 
-1. Numbered
-2. List
+    -   <https://rstudio.github.io/visual-markdown-editing/#/>
 
-**Bold** and _Italic_ and `Code` text
+-   tidyverse
 
-[Link](url) and ![Image](src)
-```
+-   R-markdown Slides: <http://www.labape.com.br/rprimi/ds/garrett_grolemund_r_markdown.pdf>
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+-   R-markdown cheatsheet <https://rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf>
 
-### Jekyll Themes
+-   ggplot <https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf> <https://rstudio.cloud/learn/cheat-sheets>
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/rprimi/ds_psicom/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+#### Aula 3-4 (14, 21 e 28/09/2020) Transformação de dados com dplyr e tidyr
 
-### Support or Contact
+-   dplyr e tidyr
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+-   dplyr cheatsheet <https://github.com/rstudio/cheatsheets/raw/master/data-transformation.pdf>
+
+-   tidyr cheatsheet <https://github.com/rstudio/cheatsheets/blob/master/data-import.pdf>
+
+#### Aula 5-6 (5/10, 12/10, 26/10, 9/11/2020) Programando em R com purrr
+
+-   Tipos de dados, programando em R, funções, controle e loops
+
+-   O pacote purrr
+
+-   List columns
+
+-   purrr cheatsheet <https://github.com/rstudio/cheatsheets/blob/master/purrr.pdf>
+
+-   Exemplo de simulação
+
+    -   Slides: [Primi\_IMPS\_2018.pptx](http://www.labape.com.br/rprimi/ds/Primi_IMPS_2018.pptx)
+
+    -   Artigo: [Primi, R. , Santos, D. , De Fruyt, F. and John, O. P. (2019), Comparison of classical and modern methods for measuring and correcting for acquiescence. Br J Math Stat Psychol. doi:10.1111/bmsp.12168](http://www.labape.com.br/Web/rprimi/ds/paper_bjmsp.pdf)
+
+    -   Códgos: <https://github.com/rprimi/acqu_mirt>
+
+#### Aula 7 (16/11/2020) Aplicações com Natural Language Processig (NLP)
+
+-   Tidytext: <https://www.tidytextmining.com/tidytext.html>
+-   [Uso do word-to-vec (word embeddings) para análise de textos](http://www.labape.com.br/rprimi/ds/cap_primi_v0_rev.pdf)
+-   [Rosenbusch, H., Wanders, F., & Pit, I. L. (2020). The Semantic Scale Network: An online tool to detect semantic overlap of psychological scales and prevent scale redundancies. Psychological Methods, 25(3), 380-392. http://dx.doi.org.stanford.idm.oclc.org/10.1037/met0000244](http://www.labape.com.br/rprimi/ds/The%20Semantic%20Scale%20Network.pdf)
+
+#### Aula 8 Introdução ao Deep Learning com R
+
+-   Slides : <http://www.labape.com.br/rprimi/ds/deep_learning.pptx>
+
+
+<img src="imagens/rmarkdown.png" width="80"/> <img src="imagens/tidyverse.png" width="80"/> <img src="imagens/ggplot2.png" width="80"/> <img src="imagens/dplyr.png" width="80"/> <img src="imagens/tidyr.png" width="80"/>  <img src="imagens/purrr.png" width="80"/> <img src="imagens/keras.png" width="240"/> 
+
