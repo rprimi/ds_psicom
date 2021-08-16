@@ -1,6 +1,6 @@
 ---
 title: "Ciência de Dados aplicada à Psicometria com R"
-author: "niversidade São Francisco (USF) Prof. Dr. Ricardo Primi"
+author: "Universidade São Francisco (USF) Prof. Dr. Ricardo Primi"
 date: "`r Sys.Date()`"
 output:
   prettydoc::html_pretty:
