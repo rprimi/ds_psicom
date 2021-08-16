@@ -11,7 +11,7 @@ output: html_document
 
 ### Bibliotecas
 
-* É preciso instalar o pacote  `keras` que roda o Python por trás das cortinas.
+* É preciso instalar o pacote `keras` que roda o Python por trás das cortinas.
 
 ```{r}
   library(readxl)
@@ -45,7 +45,24 @@ output: html_document
 
  frq(usos$num_correções)
  
- usos %>% ggplot(aes(x=av)) + geom_histogram(binwidth = .5, color = "white", fill = "blue")
+ 
+ 
+  usos %>% ggplot(aes(x=av)) + 
+   geom_histogram(
+     binwidth = .5, 
+     color = "white", 
+     fill = "blue"
+     )
+
+ 
+ usos %>% group_by(id, pre_pos) %>%
+   tally %>% 
+   ggplot(aes(x=n)) + 
+   geom_histogram(
+     binwidth = 1, 
+     color = "white", 
+     fill = "blue"
+     )
 
 
 ```
@@ -57,9 +74,13 @@ output: html_document
 
 # Create dfm    
     corpus <- corpus(usos$resposta)
-    dfm <- dfm(corpus, remove = stopwords("portuguese"), tolower = TRUE, 
-               remove_punct = TRUE
+    dfm <- dfm(
+      corpus, 
+      remove = stopwords("portuguese"), 
+      tolower = TRUE, 
+      remove_punct = TRUE
                )
+    
     dfm <- dfm_sort(dfm, decreasing = TRUE, margin = c("features"))
     dfm <- dfm_tfidf(dfm, scheme_tf = "prop")
      
@@ -109,8 +130,7 @@ output: html_document
       kernel_initializer="zero", 
       input_shape = c(558)
     )
-      
-  
+
   model_lm %>% compile(
     optimizer = "adam",
     loss = "mse",
@@ -120,7 +140,7 @@ output: html_document
     history_lm <- model_lm %>% fit(
       x_train,
       y_train,
-      epochs = 500,
+      epochs = 200,
       batch_size = 80,
       validation_data = list(x_val, y_val)
     )
@@ -135,7 +155,7 @@ output: html_document
 
    predictions <- model_lm %>% predict(x_val)
 
-   df_result <-   usos[indices[val_indices], ]  %>% 
+   df_result <-  usos[indices[val_indices], ]  %>% 
        bind_cols(predictions = predictions)
   
   corr.test(df_result[ , 8:9])
@@ -150,9 +170,7 @@ output: html_document
   
 
    colors <- brewer_pal(palette = "Spectral")(4)
-
-  
-  
+ 
     df_result %>%
     ggplot( aes(x = predictions, y = av, color = av) ) +
         geom_point( alpha = 1/2) +
@@ -181,11 +199,24 @@ output: html_document
      
 ```
 
-### Modelo 1: Deeep Learning Feully Conneccted Neural Network  usadno a TFIDF das palavras como preditores da nota
+### Modelo 1: Deeep Learning Fully Conneccted Neural Network usadno a TFIDF das palavras como preditores da nota
 
 
 * Define o modelo e treina
 ```{r}
+
+ model_nn <- keras_model_sequential() %>%
+    layer_dense(
+      units = 80,  
+      activation = "relu", 
+      input_shape = c(558)
+    ) %>%
+    layer_dense(
+      units = 50, 
+      activation = "relu"
+      ) %>%
+    layer_dense(units = 1)
+
 
   model_nn <- keras_model_sequential() %>%
     layer_dense(
@@ -205,9 +236,9 @@ output: html_document
 
 
   model_nn %>% compile(
-        optimizer = "rmsprop",
+        optimizer = "adam",
         loss = "mse",
-        metrics = c("mae")
+        metrics = c("mse")
     )
   
   history <- model_nn %>% 
@@ -287,13 +318,15 @@ output: html_document
   respostas  <- rm_accent(str = respostas)
   
    
-  tokenizer <- text_tokenizer(lower = TRUE, num_words = 595) %>% 
+  tokenizer <- text_tokenizer(lower = TRUE, num_words = 585) %>% 
       fit_text_tokenizer(respostas)
+ 
   sequences <- texts_to_sequences(tokenizer, respostas)
   word_index <- tokenizer$word_index
  
+   class(word_index)
   names(word_index)
-  class(word_index)
+ 
   map_dbl(sequences, length) %>% hist
   
   library(skimr)
@@ -368,10 +401,7 @@ output: html_document
           embedding_matrix[index+1,] <- embedding_vector
         }
       }
-    
-   
-      
-      embedding_matrix
+       embedding_matrix
     }
  
   
@@ -412,7 +442,7 @@ output: html_document
     indices <- sample(1:length(sequences))    
     
     prop_train <- .82
-    maxlen <- 5
+    maxlen <- 10
     
     train_indices <- 1: round(prop_train*length(sequences), 0)
     val_indices <- (round(prop_train*length(sequences), 0)+1):length(sequences)
@@ -437,29 +467,14 @@ output: html_document
 #### Model arquictecture definition: rnn on top of pre-trained word embeddings
 ```{r}
 
-
 ### Embedding and fully connected nn
 
+   
     max_words = 585
     embedding_dim = 600
     
     dim(embedding_matrix)
-
-# lstm model    
-#  model <- keras_model_sequential() %>%
-     layer_embedding(
-         input_dim = max_words +1, 
-         output_dim = embedding_dim , 
-         weights = list(embedding_matrix), 
-         input_length = maxlen, 
-         trainable = FALSE ) %>%
-    layer_lstm(units = 64, recurrent_dropout = 0.4, dropout =.5) %>%
-    layer_dense(units = 1,  kernel_regularizer = regularizer_l2(0.001)) 
  
- 
-# 
-# 
-# 
     model_lstm <- keras_model_sequential() %>%
      layer_embedding(
          input_dim = max_words +1, 
@@ -477,8 +492,10 @@ output: html_document
     model_lstm %>% compile(
         optimizer = "rmsprop",
         loss = "mse",
-        metrics = c("mae")
+        metrics = c("mse")
     )
+    
+    
     history <- model_lstm %>% 
       fit(
       x_train,

@@ -1,0 +1,119 @@
+---
+title: "Aula 8 Intro ao Deep Learning"
+author: "Ricardo Primi"
+date: "12/7/2020"
+output: html_document
+---
+
+
+### Funções para corrigir testes e controle de aquiescência classico
+
+* 
+
+```{r}
+  library(readxl)
+  library(tidyverse)
+
+  library(psych)
+ 
+  library(sjmisc)
+  
+  library(RColorBrewer)
+  library(scales)
+
+  source("http://www.labape.com.br/rprimi/R/recoding_functions.R")
+  source("http://www.labape.com.br/rprimi/R/score_tests.R")
+  source("http://www.labape.com.br/rprimi/R/save_loadings4.R")
+
+
+```
+
+ 
+
+ 
+### Análise psicométrica das escalas (SENNA domain_layres e facets_layers)
+```{r}
+
+
+ dic_geral <- 
+    # senna domain + layer
+    tibble(
+      coditem =item_dic_senna$coditem,
+      scale = item_dic_senna$domain, 
+      pole = item_dic_senna$pole,
+      seman_pairs = item_dic_senna$seman_pair,
+       item_text = item_dic_senna$item_text_pt,
+      item_text_en = item_dic_senna$item_text_eng
+    ) %>% 
+    # senna facets + layer
+    rbind(
+      tibble( 
+      coditem =item_dic_senna$coditem,
+      scale = item_dic_senna$facet, 
+      pole = item_dic_senna$pole,
+      seman_pairs = item_dic_senna$seman_pair,
+       item_text = item_dic_senna$item_text_pt,
+      item_text_en = item_dic_senna$item_text_eng
+      )
+      ) %>% 
+    # Sal + mesh + all
+    rbind(
+      tibble( 
+        coditem =item_dic_bib2$coditem,
+       scale = item_dic_bib2$scale3, 
+       pole = item_dic_bib2$pole,
+       seman_pairs = item_dic_bib2$seman_pairs,
+       item_text = item_dic_bib2$item_text,
+      item_text_en = item_dic_bib2$item_text_en
+      )
+    ) %>% 
+    # indice de qauiescencia
+    rbind(
+      tibble( 
+      coditem =item_dic_acq$coditem,
+      scale = "acq_index",
+      pole = 1,
+      seman_pairs = item_dic_acq$seman_pair,
+      item_text = item_dic_acq$item_text_pt,
+      item_text_en = item_dic_acq$item_text_eng
+      )
+    ) 
+ 
+  dic_geral %>% group_by(scale) %>% tally
+  
+  psicom <- base_bib  %>% 
+    select(unique(dic_geral$coditem)) %>%
+    score_tests_v2(
+      item_dic = dic_geral,
+      save_item_stat = TRUE, 
+      filename = "psicom_bib3.xlsx" 
+      )
+
+
+names(psicom)
+
+psicom[[4]] %>% view
+```
+
+```{r}
+
+base_bib  %>% 
+  select(dic_geral$coditem) %>%
+  corr.test() %>% .$n %>%
+  as.data.frame() %>% 
+  rownames_to_column("coditem1") %>%
+  pivot_longer(cols = 2:315, names_to = "coditem2") %>%
+  ggplot(aes(x=value)) + geom_histogram(color = "white")
+
+
+```
+
+
+
+
+### Dados
+```{r}
+
+ usos <- readRDS("../dados/usos_dl.RDS") 
+
+```
