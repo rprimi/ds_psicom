@@ -1,0 +1,79 @@
+---
+title: "Ex1"
+author: "Ricardo Primi"
+output:  html_document
+---
+
+## Dados
+
+```{r}
+
+load("../ds_psicom/dados/enem.Rdata")
+
+```
+
+```{r}
+library(dplyr)
+dplyr::glimpse(enem)
+
+glimpse(enem)
+
+names(enem)
+
+sjlabelled::get_label(enem)
+sjlabelled::get_labels(enem)
+
+library(sjlabelled)
+get_label(enem)
+
+library(dplyr)
+library(plyr)
+
+sjlabelled::get_label(enem$Q035)
+sjlabelled::get_labels(enem$Q035)
+
+
+sjlabelled::get_label(enem$Q050)
+sjlabelled::get_labels(enem$Q050)
+
+enem[[79]]
+
+str(enem$Q050)
+
+
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+
+ggplot(data = enem, mapping = aes(y = NU_NOTA_MT, x = NU_NOTA_CN)) + 
+  geom_point( aes(color = NU_NOTA_LC)) + 
+  geom_smooth()
+
+ggplot(data = enem, mapping = aes(x=NU_NOTA_MT)) + 
+  geom_histogram()
+
+ggplot(data = enem, mapping = aes(x=NU_NOTA_MT)) + 
+  geom_histogram(binwidth = 100, color = "white", fill = "darkblue")
+
+ggplot(data = enem, mapping = aes(y=NU_NOTA_MT)) +
+  geom_boxplot(aes(fill = TP_SEXO))
+
+enem %>% 
+  group_by(TP_SEXO) %>%
+  dplyr::summarise(m_mt = mean(NU_NOTA_MT, na.rm = TRUE)) %>%
+  ggplot(mapping = aes(y = m_mt, x=TP_SEXO)) +
+  geom_col()
+
+
+
+```
+### Sua vez
+
+-   Compare as notas da redação por gênero?
+-   Qual a relação entre idade e nota de matemática/ciências/linguagens/ciências humanas?
+
+

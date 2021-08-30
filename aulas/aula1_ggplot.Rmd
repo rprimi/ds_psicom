@@ -9,6 +9,29 @@ output: html_document
 load("../dados/enem.Rdata")
 ```
 
+
+### Explorando a base 
+```{r}
+
+names(enem)
+
+dplyr::glimpse(enem)
+
+sjlabelled::get_label(enem)
+sjlabelled::get_labels(enem)
+
+sjlabelled::get_label(enem$Q050)
+sjlabelled::get_labels(enem$Q050)
+
+sjmisc::frq(enem$Q050)
+
+class(enem)
+
+
+
+```
+
+
 ### Bibliotecas
 
 ```{r}
@@ -17,21 +40,46 @@ library(tidyverse)
 
 ### Qual a relação entre português e matemática?
 
-```{r}
+* Criando unm canvas
 
+```{r}
+ggplot(data = enem)
+```
+* Adiciionando geoms
+
+```{r}
 ggplot(data = enem) + 
   geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT))
 ```
 
 -   ggplot(data = <DATA>) + <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
 
+* Adicione mais camadas
+```{r}
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT)) +
+  geom_smooth(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT))
+```
+* Ou faça assim
+
+```{r}
+ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT)) + 
+  geom_point() +
+  geom_smooth()
+```
+
+
 ### Sua vez
 
 -   Qual a relação entre outras notas (lembre que tem redação) ?
--   Qual a relação entre a nota de matemática
+-   Qual a relação entre idade e nota de matemática?
 
 ```{r}
 
+
+
+ggplot(data = enem) + 
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_IDADE))
 
 ```
 
@@ -454,6 +502,7 @@ ggplot(data = <DATA>) +
 
 Veja: http://www.labape.com.br/rprimi/ds/garrett_grolemund_ggplot.pdf
 
+http://www.cookbook-r.com/Graphs/
   
 ### Salvando os graficos
 ```{r}

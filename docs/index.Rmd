@@ -10,12 +10,10 @@ editor_options:
     wrap: 72
 ---
 
-**Prof. Dr. Ricardo Primi**  
-**Universidade São Francisco (USF)** 
+**Prof. Dr. Ricardo Primi**\
+**Universidade São Francisco (USF)**
 
-![](images/logo-usf.png){width="135"}  
-
-
+![](images/logo-usf.png){width="135"}
 
 Bem vindo ao Curso!!
 
@@ -52,7 +50,7 @@ da linguagem
 
 -   Slides: <http://www.labape.com.br/rprimi/ds/t0_introducao.pptx>
 
-#### Aula 2 (23/08/2021) R, R-studio e R-Markdown análise exploratória gráfica com ggplot
+#### Aula 2 (23/08/2021) R, R-studio e R-Markdown
 
 -   R e R-Studio
 
@@ -72,6 +70,8 @@ da linguagem
 -   ggplot
     <https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf>
     <https://rstudio.cloud/learn/cheat-sheets>
+-   Exercício 1 ggplot
+    <https://github.com/rprimi/ds_psicom/tree/master/exerc/ex1.Rmd>
 
 <img src="../imagens/rmarkdown.png" width="80"/>
 <img src="../imagens/tidyverse.png" width="80"/>
