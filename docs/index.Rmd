@@ -73,6 +73,14 @@ da linguagem
 -   Exercício 1 ggplot
     <https://github.com/rprimi/ds_psicom/tree/master/exerc/ex1.Rmd>
 
+#### Materiais adicionais e Referências
+
+Git e github: <https://beatrizmilz.github.io/slidesR/git_rstudio/#1>
+
+<https://beatrizmilz.github.io/RLadies-Git-RStudio-2019/#1>
+
+Livro do curso-r: <https://livro.curso-r.com/>
+
 <img src="../imagens/rmarkdown.png" width="80"/>
 <img src="../imagens/tidyverse.png" width="80"/>
 <img src="../imagens/ggplot2.png" width="80"/>

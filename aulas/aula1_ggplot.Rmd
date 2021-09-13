@@ -1,16 +1,20 @@
 ---
 title: "ggplot"
 output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ### Lê dados
 
 ```{r}
 load("../dados/enem.Rdata")
+
 ```
 
+### Explorando a base
 
-### Explorando a base 
 ```{r}
 
 names(enem)
@@ -31,7 +35,6 @@ class(enem)
 
 ```
 
-
 ### Bibliotecas
 
 ```{r}
@@ -40,12 +43,13 @@ library(tidyverse)
 
 ### Qual a relação entre português e matemática?
 
-* Criando unm canvas
+-   Criando unm canvas
 
 ```{r}
 ggplot(data = enem)
 ```
-* Adiciionando geoms
+
+-   Adiciionando geoms
 
 ```{r}
 ggplot(data = enem) + 
@@ -54,20 +58,21 @@ ggplot(data = enem) +
 
 -   ggplot(data = <DATA>) + <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
 
-* Adicione mais camadas
+-   Adicione mais camadas
+
 ```{r}
 ggplot(data = enem) + 
   geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT)) +
   geom_smooth(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT))
 ```
-* Ou faça assim
+
+-   Ou faça assim
 
 ```{r}
 ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT)) + 
   geom_point() +
   geom_smooth()
 ```
-
 
 ### Sua vez
 
@@ -76,31 +81,62 @@ ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT)) +
 
 ```{r}
 
-
-
 ggplot(data = enem) + 
   geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_IDADE))
 
+ggplot(data = enem, mapping = aes(y = NU_NOTA_MT, x = NU_IDADE)) + 
+  geom_point() +
+  geom_smooth()
+
+ggplot(data = enem, mapping = aes(y = NU_NOTA_CH, x = NU_IDADE)) + 
+  geom_point() +
+  geom_smooth()
+
+```
+
+### Melhorando aspectos do gráfico
+
+```{r}
+ggplot(data = enem, mapping = aes(y = NU_NOTA_MT, x = NU_IDADE, color = NU_NOTA_CN)) + 
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Como a nota em matemática de correlaciona com idade?",
+       subtitle = "x = idade, y = matemática",
+       x = "idade",
+       y = "Nota em matemática",
+       color = "Nota em ciências" ) +
+  theme_classic()
+
+plot(enem$NU_NOTA_MT, enem$NU_IDADE, col = "red" )
+  
 ```
 
 ### Qual a relação entre as provas para meninos e meninas e por tipo de escola ?
 
 ```{r}
   library(sjmisc)
+  library(skimr)
   frq(enem$TP_SEXO)
   frq(enem$TP_ESCOLA)
   frq(enem$TP_DEPENDENCIA_ADM_ESC)
-
+  
+  skim(enem$TP_SEXO)
 ```
 
 ```{r}
 
-ggplot(data = enem) + 
-  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO))
+ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO)) + 
+  geom_point() +
+  geom_smooth()
 
 ```
 
--   Explore a relação com outras terceiras variáveis. Use outros atributos: *color*: altera a cor de formas que não têm área (pontos e retas); *fill*: altera a cor de formas com área (barras, caixas, densidades, áreas); *size*: altera o tamanho de formas; *type*: altera o tipo da forma, geralmente usada para pontos e *linetype*: altera o tipo da linha.
+-   Explore a relação com outras terceiras variáveis. Use outros
+    atributos: *color*: altera a cor de formas que não têm área (pontos
+    e retas); *fill*: altera a cor de formas com área (barras, caixas,
+    densidades, áreas); *size*: altera o tamanho de formas; *type*:
+    altera o tipo da forma, geralmente usada para pontos e *linetype*:
+    altera o tipo da linha.
 
 -   Shapes ![Shapes](../imagens/shapes-1.png)
 
@@ -120,7 +156,7 @@ ggplot(data = enem) +
 ```{r eval = FALSE}
 
 ggplot(data = enem) + 
-  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT) color = TP_SEXO))
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO) )
 
 ```
 
@@ -137,8 +173,7 @@ ggplot(data = enem) +
 
 ```{r}
 ggplot(data = enem) + 
-  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO)) +
-  facet_wrap(~TP_SEXO)
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO)) + facet_wrap(~TP_SEXO)
 
 ggplot(data = enem) + 
   geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_DEPENDENCIA_ADM_ESC)) +
@@ -163,25 +198,28 @@ ggplot(data = enem) +
       x = NU_NOTA_MT, 
       color = TP_DEPENDENCIA_ADM_ESC
       ), 
-    show.legend = FALSE) +
+    show.legend = FALSE
+    ) +
   facet_grid(TP_DEPENDENCIA_ADM_ESC~TP_SEXO)
 
 ```
 
 ### Geoms
 
--   Estudo e cheatsheet <https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf>
+-   Estudo e cheatsheet
+    <https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf>
 
 ```{r}
 ggplot(data = enem) + 
-  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO))
+  geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, fill = TP_SEXO))
 
 ggplot(data = enem) + 
-  geom_boxplot(mapping = aes(y = NU_NOTA_MT, x = TP_SEXO, color = TP_SEXO))
+  geom_boxplot(mapping = aes(y = NU_NOTA_MT, x = TP_SEXO, fill = TP_SEXO))
 
 ```
 
--   Análise de distribuições. Tente manipular `fill` e `color` para fazer esse histograma ficar mais bonito?
+-   Análise de distribuições. Tente manipular `fill` e `color` para
+    fazer esse histograma ficar mais bonito?
 -   Tente ver o help usando `?geom_histogram`
 
 ```{r}
@@ -191,7 +229,8 @@ ggplot(data = enem) +
 
 ```
 
--   Visualização de padrões de correlação `geom_smooth`. Note o que foi feito.
+-   Visualização de padrões de correlação `geom_smooth`. Note o que foi
+    feito.
 
 ```{r}
 ggplot(data = enem) +
@@ -228,7 +267,8 @@ ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEX
 
 ```
 
--   Quando você especifica o mapeamento dentro de uma função `geom_` este será usado localmente no layer criado pelo geom.
+-   Quando você especifica o mapeamento dentro de uma função `geom_`
+    este será usado localmente no layer criado pelo geom.
 
 ```{r}
 
@@ -239,7 +279,8 @@ ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT)) +
 
 ```
 
--   Veja que você pode especificar um dataframe específico dentro da função geom
+-   Veja que você pode especificar um dataframe específico dentro da
+    função geom
 
 ```{r}
 
@@ -274,7 +315,8 @@ ggplot(data = enem) +
 
 ```
 
--   Note o formato da base de dados. Eles foram contados antes de serem colocados no gráfico
+-   Note o formato da base de dados. Eles foram contados antes de serem
+    colocados no gráfico
 
 ```{r}
 
@@ -282,18 +324,27 @@ enem %>% select(TP_COR_RACA)
 
 ```
 
-O que o ggplot faz? (veja Grolemund & Wickham, 2017, <https://r4ds.had.co.nz/transform.html>)
+O que o ggplot faz? (veja Grolemund & Wickham, 2017,
+<https://r4ds.had.co.nz/transform.html>)
 
--   bar charts, histograms, and frequency polygons bin your data and then plot bin counts, the number of points that fall in each bin.
+-   bar charts, histograms, and frequency polygons bin your data and
+    then plot bin counts, the number of points that fall in each bin.
 
--   smoothers fit a model to your data and then plot predictions from the model.
+-   smoothers fit a model to your data and then plot predictions from
+    the model.
 
--   boxplots compute a robust summary of the distribution and then display a specially formatted box.
+-   boxplots compute a robust summary of the distribution and then
+    display a specially formatted box.
 
 ![](../imagens/visualization-stat-bar.png)
 
-
-Grolemund & Wickham (2017): "You can learn which stat a geom uses by inspecting the default value for the stat argument. For example, ?geom_bar shows that the default value for stat is “count”, which means that geom_bar() uses stat_count(). stat_count() is documented on the same page as geom_bar(), and if you scroll down you can find a section called “Computed variables”. That describes how it computes two new variables: count and prop"
+Grolemund & Wickham (2017): "You can learn which stat a geom uses by
+inspecting the default value for the stat argument. For example,
+?geom_bar shows that the default value for stat is "count", which means
+that geom_bar() uses stat_count(). stat_count() is documented on the
+same page as geom_bar(), and if you scroll down you can find a section
+called "Computed variables". That describes how it computes two new
+variables: count and prop"
 
 ```{r}
 
@@ -303,8 +354,9 @@ ggplot(data = enem) +
 
 ```
 
-
-* Veja o código abaixo. Ele faz a conta primeiro e depois o gráfico. Note que precisamos indicar o argumento `stat =  "identity"` para dizer ao ggplot que deve considerar os valores como estão na base.  
+-   Veja o código abaixo. Ele faz a conta primeiro e depois o gráfico.
+    Note que precisamos indicar o argumento `stat =  "identity"` para
+    dizer ao ggplot que deve considerar os valores como estão na base.
 
 ```{r}
 
@@ -321,7 +373,8 @@ ggplot(data = enem, mapping = aes(x = TP_COR_RACA, fill = TP_COR_RACA)) +
 
 
 ```
-* Como fazer um gráfico de proporção
+
+-   Como fazer um gráfico de proporção
 
 ```{r}
 
@@ -355,12 +408,12 @@ ggplot(data = enem) +
 
 ```
 
+### Ajustes de posição
 
+-   O que acontece quando usamos uma segunda variável em `fill`. Por
+    exemplo queremos contar as variáveis raça e genero. Veja o que o
+    ajuste `position` faz:
 
-
-### Ajustes de posição 
-
-* O que acontece quando usamos uma segunda variável em `fill`. Por exemplo queremos contar as variáveis raça e genero. Veja o que o ajuste `position` faz:
 ```{r}
 
 ggplot( data = enem) +
@@ -390,9 +443,7 @@ ggplot( data = enem) +
 
 ```
 
-
-* Como comparar proporções. Veja:
-
+-   Como comparar proporções. Veja:
 
 ```{r}
 
@@ -422,10 +473,11 @@ ggplot(data = enem
 
 
 ```
-* Desafio: como fazer um gráfico com a soma ser 100% por grupo ?
 
+-   Desafio: como fazer um gráfico com a soma ser 100% por grupo ?
 
-* Porque esse grafico não funciona?
+-   Porque esse grafico não funciona?
+
 ```{r}
 
 ggplot(data = enem) + 
@@ -442,6 +494,7 @@ ggplot(data = enem) +
 
 
 ```
+
 ### Sistema de coordenadas
 
 ```{r}
@@ -468,7 +521,6 @@ bar + coord_polar()
 
 ```
 
-
 ```{r}
 ggplot(data = enem
        ) + 
@@ -487,28 +539,45 @@ ggplot(data = enem
   
 ```
 
-
 ### Síntese: "The layered grammar of grafics
 
-ggplot(data = <DATA>) + 
-  <GEOM_FUNCTION>(
-     mapping = aes(<MAPPINGS>),
-     stat = <STAT>, 
-     position = <POSITION>
-  ) +
-  <COORDINATE_FUNCTION> +
-  <FACET_FUNCTION>
-  
+ggplot(data = <DATA>) + <GEOM_FUNCTION>( mapping = aes(<MAPPINGS>), stat
+= <STAT>, position = <POSITION> ) + <COORDINATE_FUNCTION> +
+<FACET_FUNCTION>
 
-Veja: http://www.labape.com.br/rprimi/ds/garrett_grolemund_ggplot.pdf
+Veja: <http://www.labape.com.br/rprimi/ds/garrett_grolemund_ggplot.pdf>
 
-http://www.cookbook-r.com/Graphs/
-  
+<http://www.cookbook-r.com/Graphs/>
+
 ### Salvando os graficos
+
 ```{r}
 
 ggsave("f1.png")
 
 ```
 
+### Plus
 
+-   Olhe esse gráfico. O que ele informa ?
+
+```{r}
+f <- ggplot(data = enem) + 
+  stat_ecdf(mapping = aes(x = NU_NOTA_MT), color = "red") +
+  stat_ecdf(mapping = aes(x = NU_NOTA_CN), color = "orange") +
+  stat_ecdf(mapping = aes(x = NU_NOTA_CH), color = "blue") +
+  stat_ecdf(mapping = aes(x = NU_NOTA_LC), color = "green") +
+  scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800))
+
+glimpse(f)
+
+```
+
+### Exercício 2
+
+-   Escolha duas variáveis de caracterização dos sujeitos do ENEM
+    (lembre-se que ha uma questinário socio econômico)
+-   Faça um gráfico de barras com essas variáveis
+-   Faça um gráfico mostrando a relação entre desempenho em uma prova do
+    ENEM com essas variáveis
+-   Faça um relatório em R-Markdown so mostrando o texto e os gráficos
