@@ -24,6 +24,7 @@ library(skimr)
 library(psych)
 
 enem %>% select(contains("NU_NOTA")) %>% skim
+
 enem %>% select(contains("NU_NOTA")) %>% describe
 
 
@@ -33,14 +34,16 @@ enem %>% select(contains("NU_NOTA")) %>% describe
 
 ```{r}
 
-f1 <- ggplot(data = enem, aes(x=NU_NOTA_CN)) + 
+library(scales)
+
+f1 <- ggplot(data = enem, aes(x=NU_NOTA_MT)) + 
   geom_histogram(
     color = "purple", 
     fill = "lightgrey", 
-    bins = 50) +
+    binwidth =  25) +
   scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800))
 
-f1
+
 
 ```
 
@@ -51,7 +54,7 @@ f1
   geom_histogram(
     color = "red", 
     fill = "lightgrey", 
-    bins = 50) +
+    binwidth =  25) +
   scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800))
 
  f2
@@ -70,21 +73,23 @@ f1 + f2
 
 f1 / f2
 
-f1 + f2 +  plot_layout(ncol = 1)
+f1 + f2 +  plot_layout(ncol = 2)
 ```
 
 
 ### Temas
 
 ```{r}
- 
+ library(ggthemes)
  f1 +  theme_bw()
 
- f1 +  theme_classic()
+ f1 + theme_classic()
  
  f1 + theme_light()
  
  f1 + theme_minimal()
+ 
+ f1 + ggthemes::theme_solarized()
 
 ```
 
@@ -93,11 +98,11 @@ f1 + f2 +  plot_layout(ncol = 1)
 
 ```{r}
 
-ggplot(data = enem, aes(x=NU_NOTA_MT)) + 
+f3<- ggplot(data = enem, aes(x=NU_NOTA_MT)) + 
   geom_histogram(
     color = "blue", 
     fill = "lightgrey", 
-    bins = 50) +
+    binwidth =  25) +
   scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800)) +
  labs(
   x = "ENEM Matemática ",
@@ -114,19 +119,7 @@ ggplot(data = enem, aes(x=NU_NOTA_MT)) +
 
 ```{r}
 
-ggplot(data = enem, aes(x=NU_NOTA_MT)) + 
-  geom_histogram(
-    color = "blue", 
-    fill = "lightgrey", 
-    bins = 50) +
-  scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800)) +
- labs(
-  x = "ENEM Matemática ",
-  y = "Freq.",
-  title = "Distribuição das notas no ENEM",
-  subtitle = "Matemática",
-  caption = "Fonte: microdados do INEP"
-  ) +
+f3 +
  geom_vline(
    xintercept=c(
     mean(enem$NU_NOTA_MT, na.rm=TRUE),
@@ -177,7 +170,6 @@ enem %>%
 
      ) + 
   coord_flip()
-  
 
 
 enem %>% 

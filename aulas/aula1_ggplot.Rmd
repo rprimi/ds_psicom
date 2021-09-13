@@ -225,7 +225,10 @@ ggplot(data = enem) +
 ```{r}
 
 ggplot(data = enem) + 
-  geom_histogram(mapping = aes(x = NU_NOTA_MT))
+  geom_histogram(mapping = aes(x = NU_NOTA_MT), 
+                 fill = "red", color = "white")
+
+enem %>% select(NU_NOTA_MT) %>% skim
 
 ```
 
@@ -238,8 +241,7 @@ ggplot(data = enem) +
               
 ggplot(data = enem) +
   geom_smooth(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, group = TP_SEXO))
-    
-
+ 
 ggplot(data = enem) +
   geom_smooth(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, fill = TP_SEXO))
  
@@ -251,8 +253,8 @@ ggplot(data = enem) +
 ```{r}
 
 ggplot(data = enem) +
-   geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO), alpha = 1/2) +
-   geom_smooth(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, fill = TP_SEXO))
+   geom_point(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO), alpha = 1/80) + 
+   geom_smooth(mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, fill = TP_SEXO)) + theme_minimal()
 
 ```
 
@@ -260,7 +262,8 @@ ggplot(data = enem) +
 
 ```{r}
 
-ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, color = TP_SEXO)) +
+ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT, 
+              color = TP_SEXO)) +
   geom_point(alpha = 1/2) +
   geom_smooth()
 
@@ -285,8 +288,9 @@ ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT)) +
 ```{r}
 
 ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT)) +
-   geom_point(aes(color = TP_COR_RACA, alpha = 1/2)) +
-   geom_smooth(data = filter(enem, TP_COR_RACA == "Amarela"))
+   geom_point(alpha = 1/20) +
+   geom_point(data = filter(enem, TP_COR_RACA == "Amarela"), color = "red") +
+  theme_minimal()
 
 
 ```
@@ -306,12 +310,12 @@ ggplot(data = enem, mapping = aes(y = NU_NOTA_LC, x = NU_NOTA_MT)) +
 
 ```{r}
 
-ggplot(data = enem) + 
-  geom_bar(mapping = aes(x = TP_COR_RACA, color = TP_COR_RACA))
 
 ggplot(data = enem) + 
-  geom_bar(mapping = aes(x = TP_COR_RACA, fill = TP_COR_RACA))
-
+  geom_bar(mapping = aes(x = TP_COR_RACA, fill = TP_COR_RACA)) +
+  theme(axis.text.x  = element_text(angle=90, vjust=0.5) )
+  
+enem %>% select(TP_COR_RACA)
 
 ```
 
@@ -368,8 +372,8 @@ ggplot(data = enem) +
 df <- enem %>% 
   count(TP_COR_RACA) 
  
-ggplot(data = enem, mapping = aes(x = TP_COR_RACA, fill = TP_COR_RACA)) +
-    geom_bar(mapping = aes(fill = TP_SEXO)) 
+ggplot(data = df, mapping = aes(x = TP_COR_RACA, y = n)) +
+    geom_bar(stat = "identity") 
 
 
 ```
@@ -400,7 +404,7 @@ ggplot(data = enem) +
     mapping = aes(
       x =  TP_COR_RACA, 
       y = after_stat(count /sum(count)), 
-      fill = TP_COR_RACA
+      fill = TP_SEXO
     )
   ) +
   scale_y_continuous(labels=percent_format())
@@ -437,7 +441,7 @@ ggplot( data = enem) +
 
 ggplot( data = enem) +
  geom_bar(aes(x = TP_COR_RACA,  fill = TP_SEXO),
-    position = "dodge", alpha = .4
+    position = "dodge", alpha = .8
         )
 
 
@@ -455,7 +459,8 @@ ggplot(data = enem
       x =  TP_COR_RACA, 
       y = after_stat(count /sum(count)), 
       fill = TP_SEXO
-    ),position = "dodge"
+    ),
+    position = "dodge"
   ) + scale_y_continuous(labels=percent_format())
 
 
@@ -499,7 +504,7 @@ ggplot(data = enem) +
 
 ```{r}
 
-bar <- ggplot(data = enem
+bar = ggplot(data = enem
        ) + 
   geom_bar(
     mapping = aes(
@@ -539,7 +544,7 @@ ggplot(data = enem
   
 ```
 
-### Síntese: "The layered grammar of grafics
+### Síntese: "The layered grammar of grafics"
 
 ggplot(data = <DATA>) + <GEOM_FUNCTION>( mapping = aes(<MAPPINGS>), stat
 = <STAT>, position = <POSITION> ) + <COORDINATE_FUNCTION> +
@@ -551,9 +556,9 @@ Veja: <http://www.labape.com.br/rprimi/ds/garrett_grolemund_ggplot.pdf>
 
 ### Salvando os graficos
 
-```{r}
+```{r }
 
-ggsave("f1.png")
+ggsave("f1.png" )
 
 ```
 
@@ -562,7 +567,7 @@ ggsave("f1.png")
 -   Olhe esse gráfico. O que ele informa ?
 
 ```{r}
-f <- ggplot(data = enem) + 
+ggplot(data = enem) + 
   stat_ecdf(mapping = aes(x = NU_NOTA_MT), color = "red") +
   stat_ecdf(mapping = aes(x = NU_NOTA_CN), color = "orange") +
   stat_ecdf(mapping = aes(x = NU_NOTA_CH), color = "blue") +
@@ -571,12 +576,15 @@ f <- ggplot(data = enem) +
 
 glimpse(f)
 
+f = ecdf(enem$NU_NOTA_MT)
+f(500)
+
 ```
 
 ### Exercício 2
 
 -   Escolha duas variáveis de caracterização dos sujeitos do ENEM
-    (lembre-se que ha uma questinário socio econômico)
+    (lembre-se que há uma questinário socio econômico)
 -   Faça um gráfico de barras com essas variáveis
 -   Faça um gráfico mostrando a relação entre desempenho em uma prova do
     ENEM com essas variáveis
