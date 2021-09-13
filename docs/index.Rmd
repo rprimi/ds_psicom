@@ -65,13 +65,17 @@ da linguagem
 
     -   <https://rstudio.github.io/visual-markdown-editing/#/>
 
-#### Aula 2 (30/08/2021) Análise exploratória gráfica com ggplot
+#### Aula 2 (30/08/2021 e 13/09/2021) Análise exploratória gráfica com ggplot
 
 -   ggplot
     <https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf>
     <https://rstudio.cloud/learn/cheat-sheets>
--   Exercício 1 ggplot
-    <https://github.com/rprimi/ds_psicom/tree/master/exerc/ex1.Rmd>
+-   Aula 1 ggplot 
+    <https://github.com/rprimi/ds_psicom/tree/master/aulas/aula1_ggplot.Rmd> 
+-   Aula 2 ggplot 
+    <https://github.com/rprimi/ds_psicom/tree/master/aulas/aula2_ggplot.Rmd> 
+
+    
 
 #### Materiais adicionais e Referências
 
