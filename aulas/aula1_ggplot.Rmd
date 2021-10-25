@@ -11,6 +11,7 @@ editor_options:
 ```{r}
 load("../dados/enem.Rdata")
 
+
 ```
 
 ### Explorando a base
@@ -39,6 +40,7 @@ class(enem)
 
 ```{r}
 library(tidyverse)
+library(scales)
 ```
 
 ### Qual a relação entre português e matemática?
@@ -392,11 +394,11 @@ ggplot(data = enem) +
   geom_bar(
     mapping = aes(
     x =  TP_COR_RACA, 
-    y = stat(prop), 
-   group = 1
+    y = ..count.., 
+   group = TP_SEXO
     
     )) +
-   scale_y_continuous(labels=percent_format())
+   scale_y_continuous()
 
 
 ggplot(data = enem) + 
@@ -405,9 +407,24 @@ ggplot(data = enem) +
       x =  TP_COR_RACA, 
       y = after_stat(count /sum(count)), 
       fill = TP_SEXO
-    )
+    ),
+    position = "dodge"
   ) +
   scale_y_continuous(labels=percent_format())
+
+
+ggplot(data = enem, aes(x =  TP_COR_RACA, group=TP_SEXO)) + 
+  geom_bar(
+    aes(y = ..prop.., fill = TP_SEXO),
+    position = "dodge"
+  ) +
+  geom_text(
+    aes(y = ..prop.., label = scales::percent(..prop.., accuracy = 0.1)),
+    position = "dodge",
+    vjust = -.5, stat= "count", size = 2) +
+  scale_y_continuous(labels=percent_format()) +
+  facet_grid(~TP_SEXO)
+
 
 
 ```

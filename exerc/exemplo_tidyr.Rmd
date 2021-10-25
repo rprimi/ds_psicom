@@ -1,0 +1,108 @@
+---
+title: "Exemplo_tidyr"
+author: "Ricardo Priim"
+date: "10/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### Biblioteca
+```{r}
+library(tidyverse)
+```
+
+```{r}
+save.image("~/Dropbox (Personal)/ENEM_facets/redacoes_tidy.RData")
+```
+
+
+#### Examinando base
+
+```{r}
+names(red_ufop)
+names(notas)
+
+```
+
+#### Arrumando base
+```{r}
+
+notas <- red_ufop %>% 
+  select(tema_1:id_unica) %>%
+  select(id_unica, total_1, total_2, everything()) %>%
+  pivot_longer(tema_1:ortogr_2, names_sep = "_", names_to = c("item", "juiz"), values_to = "escore")
+
+ library(sjmisc)
+
+ notas$escore %>% frq
+ notas$item %>% frq
+```
+
+
+```{r}
+
+juizes <- red_ufop %>% 
+  select(id_unica:corretor_2) %>%
+  pivot_longer(
+    corretor_1:corretor_2, 
+    names_sep = "_", 
+    names_to = c("corretor", "juiz"), 
+    values_to = "codjuiz"
+    ) %>%
+  select(-corretor)
+
+ notas <- left_join(notas, juizes, by=c("id_unica", "juiz"))
+
+
+```
+
+```{r}
+
+notas %>% ggplot(aes(x=escore, fill = codjuiz)) +
+  geom_density(alpha = 1/5, adjust = 2)
+
+notas %>% ggplot(aes(x=escore, fill = item)) +
+  geom_density(alpha = 1/5, adjust = 2)
+
+```
+
+#### Concordância 
+
+```{r}
+  
+  names(notas)
+  
+    
+  concordância <- notas %>%
+    pivot_wider(names_from = c(juiz, codjuiz), values_from = escore)
+  
+  concordância <- notas %>%
+    select(-codjuiz) %>%
+    pivot_wider(names_from =juiz, values_from = escore)
+  
+  
+  
+  library(irr)
+  
+  irr::agree(concordância[ , 5:6])
+  
+  irr::agree(concordância[ , 5:6], tolerance = 1)
+  
+  kappa2(concordância[ , 5:6], weight = ("squared"))
+  kappa2(concordância[ , 5:6], weight = ("equal"))
+  
+  
+concordância2 <-  concordância %>% 
+    group_by(item) %>% 
+    select(5:6) %>%
+    nest() %>%
+  
+  concordância2 %>%
+    mutate(kp = map(data, ~kappa2(ratings = .x, weight = ("equal")))) %>%
+    pluck("kp")
+  
+```
+

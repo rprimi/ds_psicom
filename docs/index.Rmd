@@ -75,7 +75,18 @@ da linguagem
 -   Aula 2 ggplot 
     <https://github.com/rprimi/ds_psicom/tree/master/aulas/aula2_ggplot.Rmd> 
 
+#### Aula 3 (20/09, 4/10, 18/10/2021) Dados no R: tipos, estruturas e classes Organização transformação e manipulação de dados: dplyr e tidyr  
+
+-   Aula 3 dplyr
+    <https://github.com/rprimi/ds_psicom/tree/master/aulas/aula3_dplyr.Rmd>  
+-   Aula 3 tipos de dados  
+    <https://github.com/rprimi/ds_psicom/blob/master/aulas/Aula5_tipos_de_dados_no_r.Rmd>  
     
+#### Aula 4 (25/10/2021) Dados "arrumados": tidyr  
+
+-   Aula 4 tidyr 
+    <https://github.com/rprimi/ds_psicom/tree/master/aulas/aula4_tidyr.Rmd> 
+
 
 #### Materiais adicionais e Referências
 

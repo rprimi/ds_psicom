@@ -4,7 +4,6 @@ author: "Ricardo Primi"
 output: html_document
 ---
 
-
 ## Estrutura de dados (objetos) no R (Kobacoff, 2015)
 
 ![](../imagens/datastruc.png)
@@ -23,29 +22,39 @@ a <- c(1, 2, 5, 3, 6, -2, 4)
 b <- c("one", "two", "three")
 c <- c(TRUE, TRUE, TRUE, FALSE, TRUE, FALSE)
 
+typeof(a)
+typeof(b)
+typeof(c)
 
-b
-c
+d <- c(1L, 2L, 5L, 3L, 6L, -2L, 4L)
+typeof(d)
 
+a[1:3]
+
+```
+```{r}
 c(a, b)
 c(b, c)
 c(b , as.integer(c))
 c(a, c)
 
+```
+
+```{r}
 
 class(a)
 class(b)
 class(c)
-
-typeof(a)
-typeof(b)
-typeof(c)
 
 str(a)
 str(b)
 str(c)
 
 
+```
+
+
+```{r}
 
 typeof(letters)
 typeof(1:10)
@@ -60,16 +69,22 @@ typeof(as.integer(v))
 
 length(a)
 
+
 ```
 
 * Vetores nomeados
 ```{r}
-
+library(tidyverse)
 v <- c(x = 1, y = 2, z = 4)
-str(v)
-glimpse(v)
-typeof(v)
+names(v)
+
 class(v)
+
+attributes(v)
+str(v)
+
+v["z"]
+glimpse(v)
 
 v[ "z" ]
 
@@ -79,7 +94,13 @@ v <- set_names(1:5, c("A", "B", "C", "D", "E"))
 
 resp <- c("A", "B", "A","C", "A", "D","A", "E", "A", "E", "A")
 
+v["C"]
 v[resp]
+
+
+
+
+
 
 ```
 
@@ -87,10 +108,15 @@ v[resp]
 ```{r}
 
 x <- c("one", "two", "three", "four", "five")
+
+names(x) <- c("A", "B", "C", "D", "E")
+
+x["B"]
+x[5]
+
+
+
 x[c(3, 2, 5)]
-
-x[c(1, 1, 5, 5, 5, 2)]
-
 
 x[c(1, 1, 5, 5, 5, 2)]
 
@@ -99,19 +125,27 @@ x <- c(10, 3, NA, 5, 8, 1, NA)
 
 x[ !is.na(x) ]
 
+`[`
 
 ```
 
 * Matrizes
+
 ```{r, eval=FALSE, warning=FALSE}
 
 y <- matrix(1:20, nrow=5, ncol=4)
+y <- 1:20
+dim(y) <- c(2,5, 2)
+class(y)
 y
+
+y[2,, ]
 
 class(y)
 typeof(y)
 str(y) 
 glimpse(y)
+attributes(y)
 
 
 
@@ -125,6 +159,10 @@ matriz <- matrix(
         )
 
 matriz
+attributes(matriz)
+
+matriz["R1", "C2"]
+
 class(matriz)
 typeof(matriz)
 str(matriz)
@@ -141,6 +179,9 @@ class(z)
 matriz
 matriz["R1" , "C2"]
 
+matriz[1,2] <- "1"
+
+
 ```
 
 
@@ -153,7 +194,11 @@ age <- c(25, 34, 28, 52)
 diabetes <- c("Type1", "Type2", "Type1", "Type1")
 status <- c("Poor", "Improved", "Excellent", "Poor")
 
+
+
+
 patientdata <- data.frame(patientID, age, diabetes, status)
+patientdata <- tibble(patientID, age, diabetes, status)
 patientdata
 
 class(patientdata)
@@ -164,6 +209,21 @@ glimpse(patientdata)
 typeof(patientdata[1 ,  ])
 typeof(patientdata[ ,  1])
 str(patientdata[1 ,  ])
+
+patientdata[[1]]
+patientdata[3]
+
+patientdata$diabetes
+
+
+patientdata[, 1] <- (c(, 2, 3, 4))
+patientdata [1,1] <- list (1:4)
+patientdata[1,1] <- c(1:4)
+
+patientdata$sintomas <- I(list(c(1, 4), c(1, 2, 3, 4), c(1), c(2,4)))
+class(patientdata)
+typeof(patientdata)
+
 
 
 ```
@@ -180,23 +240,39 @@ class(status)
 typeof(status)
 
 
-status <- factor(status, levels=c("ruim", "bom", "muito bom", "arrazou", "excelente"))
+status <- factor(status, levels=c("ruim", "bom", "muito bom", "excelente", "arrazou"))
+
 typeof(status)
-
-
+as.numeric(status)
+as.character(status)
 levels(status)
 
-as.numeric(status)
-class(as.character(status))
+
+class()
+
+
+sex <- c("M", "F", "F", "F", "F", "M", "X")
 
 sex <- c(1, 2, 1, 1, 2, 2, 1, 1)
 
-sex <- factor(sex, levels=c(1, 2))
+sex <- factor(sex)
 
 levels(sex)
 
+levels(sex)
+
+forcats::fct_c(sex, status)
 
 
+str(patientdata)
+
+str()
+str(patientdata[2])
+str(patientdata[[2]])
+
+patientdata[4][[1]]
+
+patientdata[[4]]
 
 
 ```
@@ -216,9 +292,9 @@ mylist
 names(mylist)
 
 mylist$title
-
-
 mylist$ages
+
+mylist[[1]]
 
 str(mylist)
 
@@ -228,29 +304,27 @@ mylist$title
 class(mylist[[1]])
 
 mylist[[3]]
+mylist[[4]]
+
+mylist[4]
 
 str(mylist[3])
 
 mylist[[3]][ , 2]
 
-str(patientdata)
+x <- NULL
 
-str()
-str(patientdata[2])
-str(patientdata[[2]])
-
-patientdata[4][[1]]
-
-patientdata[[4]]
 ```
 
 ```{r}
 
 x1 <- list(c(1, 2), c(3, 4))
 x2 <- list(list(1, 2), list(3, 4))
-x3 <- list(1, list(2, list(3)))
+x3 <- list(a = 1, b = list( c= 2, d = list(e = 3)))
 
-
+x3$b$d$e
+        
+        
 x1[[1]]
 
 str(x2)
@@ -270,7 +344,6 @@ x2[[1]]
 
 ## Exercício: aprendendo estrutura de dados
 * str, class, typeof
-
 * Crie um vetor
 * Crie uma matriz
 * Crie um dataframe

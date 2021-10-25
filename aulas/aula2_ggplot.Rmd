@@ -194,15 +194,27 @@ enem %>%
 
 https://cran.r-project.org/web/packages/sjlabelled/vignettes/labelleddata.html
 
+https://strengejacke.github.io/sjmisc/reference/index.html
+
+
 ```{r}
 
 library(sjlabelled)
 library(sjmisc)
 
-get_label(enem)
+attributes(enem)
+attributes(enem$NU_INSCRICAO)
+attributes(enem$SG_UF_RESIDENCIA)
 
+get_label(enem)
 get_labels(enem$SG_UF_RESIDENCIA)
-frq(as.character(enem$SG_UF_RESIDENCIA))
+
+frq(enem, TP_SEXO, SG_UF_RESIDENCIA, sort.frq = "desc")
+flat_table(enem, SG_UF_RESIDENCIA,TP_SEXO, margin = "row")
+
+table(enem$SG_UF_RESIDENCIA)
+
+frq(TP_SEXO, SG_UF_RESIDENCIA, x = enem, sort.frq = "desc")
 
 
 ```
@@ -213,31 +225,53 @@ frq(as.character(enem$SG_UF_RESIDENCIA))
 
 ```{r}
 
-enem %>% ggplot(data = enem, mapping = aes(x=SG_UF_RESIDENCIA)) +
+enem %>% 
+   mutate(SG_UF_RESIDENCIA = as.character(SG_UF_RESIDENCIA)) %>%
+  ggplot(mapping = aes(x= SG_UF_RESIDENCIA)) +
   geom_bar()
 
  enem %>% 
     mutate(SG_UF_RESIDENCIA = as.character(SG_UF_RESIDENCIA)) %>%
     ggplot( aes(y = NU_NOTA_MT, x = SG_UF_RESIDENCIA)) +
-    stat_summary(geom = "bar", fun = "median")
+    stat_summary(geom = "bar", fun = "mean")
+ 
+ enem %>% 
+    mutate(
+      SG_UF_RESIDENCIA = fct_reorder(
+        SG_UF_RESIDENCIA, 
+        NU_NOTA_MT, 
+        mean, 
+        na.rm = TRUE, 
+        .desc = TRUE
+        ),
+      ) %>%
+   ggplot( 
+      aes(
+        y = NU_NOTA_MT, 
+        x = SG_UF_RESIDENCIA
+        )
+      ) +
+    stat_boxplot() +
+     stat_summary(geom = "line", fun = "mean", color = "red", group = 1)
+  
  
  
  enem %>% 
-  filter(!is.na(Q002)) %>%
+  filter(!is.na(Q002), Q002 != "Não sei") %>%
   mutate(
-    Q002 = stringr::str_wrap(Q002, 23)) %>%
+    Q002 = { stringr::str_wrap(Q002, 32) %>% reorder(NU_NOTA_MT, na.rm = TRUE)}
+    ) %>%
   ggplot() + 
-   geom_bar(
+   stat_summary(
     aes(
       y = NU_NOTA_MT, 
-      x = reorder(Q002, NU_NOTA_MT, na.rm = TRUE), 
-      fill = reorder(Q002, NU_NOTA_MT, na.rm = TRUE),
+      x = Q002, 
+      fill = Q002,
       ), 
-      stat = "summary", 
-      fun.y = "mean", 
+      geom = "bar", 
+      fun = "mean", 
       show.legend = FALSE
      ) +
- 
   coord_flip() 
  
 ```
@@ -269,17 +303,17 @@ enem %>%
 
 ```{r}
 
+library(RColorBrewer)
 
-library(scale)
-
-colors <- brewer_pal(palette = "Set1")(5)
+library(scales)
+colors <- brewer_pal(palette = "Set1")(9)
 show_col(colors)
 
 show_col(hue_pal()(9))
 
 show_col(viridis_pal()(4))
 
-show_col(col_numeric("Blues", domain = NULL)(1:10))
+show_col(?col_numeric("Blues", domain = NULL)(1:10))
 
 ```
 
@@ -287,41 +321,43 @@ https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html
 
 ```{r}
 
-colors <- brewer_pal(palette = "Set1")(8)
+colors <- brewer_pal(palette = "Blues")(8)
 
+ 
  enem %>% 
-  filter(!is.na(Q002)) %>%
+  filter(!is.na(Q002), Q002 != "Não sei") %>%
   mutate(
-    Q002 = stringr::str_wrap(Q002, 23)) %>%
+    Q002 = { stringr::str_wrap(Q002, 32) %>% reorder(NU_NOTA_MT, na.rm = TRUE)}
+    ) %>%
   ggplot() + 
    geom_bar(
     aes(
       y = NU_NOTA_MT, 
-      x = reorder(Q002, NU_NOTA_MT, na.rm = TRUE), 
-      fill = reorder(Q002, NU_NOTA_MT, na.rm = TRUE),
+      x = Q002, 
+      fill = Q002
       ), 
       stat = "summary", 
-      fun.y = "mean", 
+      fun = "mean", 
       show.legend = FALSE,
-     alpha = 1/2
+     alpha = .8
      ) +
-   coord_flip() +
+   coord_flip()  +
    scale_fill_manual(values = colors)
 
 ```
 
 ```{r}
 ggplot(data = enem) + 
-  geom_histogram(aes(x=NU_NOTA_CN, fill = ..x..), bin = 50 ) +
-   scale_fill_distiller(palette = "Blues") +
+  geom_histogram(aes(x=NU_NOTA_CN,  fill = ..x..), binwidth =  25 ) +
+  scale_fill_distiller(palette = "Blues") +
   scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800)) 
  
 colors <- brewer_pal(palette = "Spectral")(5)
 colors <- brewer_pal(palette = "RdBu")(5)
 
 ggplot(data = enem) + 
-  geom_histogram(aes(x=NU_NOTA_CN, fill = ..x..), bin = 50 ) +
-   scale_fill_gradientn(colors = colors) +
+  geom_histogram(aes(x=NU_NOTA_CN, fill = ..x..), binwidth =  25 ) +
+  scale_fill_gradientn(colors = colors) +
   scale_x_continuous(breaks = seq(300, 800, 50), limits = c(300, 800)) 
 
 
@@ -357,6 +393,7 @@ enem %>%
 enem %>% 
   filter(Q047 == v) %>% 
   mutate(Q047 = str_wrap(Q047, 15)) %>%
+  
   ggplot(aes(x = NU_NOTA_MT, y = Q047, fill = factor(stat(quantile))), alpha = 1/10) + 
   stat_density_ridges( 
     geom = "density_ridges_gradient", 

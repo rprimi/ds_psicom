@@ -8,9 +8,10 @@ output: html_document
 ### Bibliotecas
 
 ```{r}
-library(tidyverse)
-```
 
+library(tidyverse)
+
+```
 
 ### Lê dados
 
@@ -18,10 +19,6 @@ library(tidyverse)
 load("../dados/enem.Rdata")
 ```
 
-```{r}
-
-
-```
 
 ```{r}
 
@@ -47,22 +44,33 @@ load("../dados/enem.Rdata")
 
 ```{r}
 
-   filter(enem, TP_SEXO == "Feminino" )
+  filter(enem, TP_SEXO == "Feminino" )
+
+  glimpse(enem$TP_SEXO)
+  
    filter(enem, NU_NOTA_MT > 700)
    filter(enem, NU_NOTA_MT > 700 & TP_SEXO == "Feminino")
-   filter(enem, TP_SEXO == "Feminino", NU_NOTA_MT > 700 )
+   filter(enem, (TP_SEXO == "Feminino" | NU_NOTA_CH > 700 ))
+  
+   df_alto <- enem %>% filter(NU_NOTA_MT > 700)
+   
+   enem2 <- enem
 
+   c(0,0, 0, 1) %in% c(1, 2, 3)
+   
+   enem$SG_UF_NASCIMENTO %in% c("RS", "SP")
+   
   filter(enem, SG_UF_NASCIMENTO %in% c("RS", "SP"))
   filter(enem, str_detect(TP_ST_CONCLUSAO, "cursando"))
 
-  library(sjmifiltersc)
+  library(sjmisc)
   frq(enem$TP_ENSINO)
   
   enem %>%  
     ggplot() + geom_bar(
     aes(y = NU_NOTA_MT, x = TP_ENSINO, fill = TP_ENSINO), 
         stat = "summary", 
-        fun.y = "mean", 
+        fun = "mean", 
       show.legend = FALSE
      ) + 
     coord_flip()
@@ -72,11 +80,13 @@ load("../dados/enem.Rdata")
     ggplot() + geom_bar(
     aes(y = NU_NOTA_MT, x = TP_ENSINO, fill = TP_ENSINO), 
         stat = "summary", 
-        fun.y = "mean", 
+        fun = "mean", 
       show.legend = FALSE
      ) + 
     coord_flip()
 
+  !is.na(enem$TP_ENSINO)
+  
 ```
 ![](../imagens/transform-logical.png)
 Grolemund & Wickham (2017, <https://r4ds.had.co.nz/transform.html>, 5.2):
@@ -85,8 +95,15 @@ Grolemund & Wickham (2017, <https://r4ds.had.co.nz/transform.html>, 5.2):
 
 ```{r}
 
-filter(flights, month == 11 | 
-       | 12))
+filter(flights, (month == 11  | month == 12))
+
+x <- (1:10)
+y <- (1:4)
+x %in% y
+
+y %in% x
+
+month %in% c(11, 12)
 
 ```
 
@@ -115,6 +132,7 @@ Grolemund & Wickham (2017):
   #> [1] NA
   # We don't know!
   
+  na.rm = TRUE
   
   is.na(NA)
 
@@ -147,6 +165,7 @@ Grolemund & Wickham (2017):
   
   names(enem)
   v <- names(enem)
+  
   v[ c(1, 2, 45:58) ]
   v <- v[ c(1, 2, 45:58) ]
   
@@ -160,14 +179,19 @@ Grolemund & Wickham (2017):
 ![](../imagens/arrange.png){width=400px}  
 
 ```{r}
-  
+  arrange(mtcars, mpg)
+
+
   arrange(enem, NU_NOTA_MT)
-  arrange(enem, desc(NU_NOTA_MT))
+  
+  enem %>% 
+    select(NU_NOTA_CN:NU_NOTA_MT) %>%
+    arrange( desc(NU_NOTA_MT))
   
   names(enem)
   
   enem %>% 
-    arrange(desc(NU_NOTA_MT)) %>%
+    arrange(desc(mt_scores)) %>%
     select(TP_SEXO, NU_NOTA_MT, mt_scores, everything()) %>%
     view
   
@@ -176,6 +200,8 @@ Grolemund & Wickham (2017):
     select(TP_SEXO, NU_NOTA_LC, mt_scores, everything()) %>%
     view
 
+  
+  
 ```
 
 ### Exemplos: `mutate`
@@ -187,14 +213,28 @@ Grolemund & Wickham (2017):
 
   enem %>% 
     select(NU_NOTA_CN:NU_NOTA_MT) %>%
-    mutate(nota_geral = (NU_NOTA_CN + NU_NOTA_CH + NU_NOTA_LC + NU_NOTA_MT)/4)
+    mutate(nota_geral = (NU_NOTA_CN + NU_NOTA_CH + NU_NOTA_LC + NU_NOTA_MT) / 4)
   
+  is.na(enem$NU_NOTA_CN) %>% sjmisc::frq()
+ 
   enem %>% 
     select(NU_NOTA_CN:NU_NOTA_MT) %>%
     mutate(
       mean_cn = mean(NU_NOTA_CN, na.rm = TRUE),
       mean_mt = mean(NU_NOTA_MT, na.rm = TRUE)
     )
+  
+  # erro !!!
+  enem %>% 
+    select(NU_NOTA_CN:NU_NOTA_MT) %>%
+    mutate(
+      mean = mean(NU_NOTA_CN, NU_NOTA_MT, na.rm = TRUE)
+    )
+  
+  attributes(scale(enem$NU_NOTA_CH))
+  typeof(scale(enem$NU_NOTA_CH))
+  class(scale(enem$NU_NOTA_CH))
+  
   
   enem %>% 
     select(NU_NOTA_CN:NU_NOTA_MT) %>%
@@ -206,7 +246,8 @@ Grolemund & Wickham (2017):
       z_geral = (zCN + zCH+ zLC + zMT)/4,
       rank = min_rank(z_geral),
       percentil_g =  percent_rank(z_geral)
-      )
+      ) %>%
+    arrange(rank)
 
 ```
 ### Exemplos: `group_by`
@@ -217,6 +258,13 @@ slides
 ```{r}
 
   group_by(enem, SG_UF_RESIDENCIA) 
+
+  df <- enem %>% group_by(SG_UF_RESIDENCIA) 
+  
+  glimpse(df)
+  l <- attributes(df)
+  
+  l$groups %>% view
   
   enem %>% group_by(SG_UF_RESIDENCIA) %>% tally()
   
@@ -228,7 +276,8 @@ slides
   
   group_keys(df)
   
-  group_indices(df)
+  group_indices(df) %>% sjmisc::frq()
+  enem %>% group_by(SG_UF_RESIDENCIA) %>% tally()
   
   group_vars(df)
 
@@ -270,8 +319,22 @@ slides
   enem %>% 
     group_by(TP_DEPENDENCIA_ADM_ESC) %>%
     summarise(
+      across(contains("NU_NOTA"), mean, na.rm=TRUE)
+     )  
+  
+  enem %>% 
+    group_by(TP_DEPENDENCIA_ADM_ESC) %>%
+    summarise(
       across(contains("NU_NOTA"), ~mean(.x, na.rm=TRUE))
      )  
+  
+    l = list(M="mean", SD="sd", min="min", max="max")
+  enem %>% 
+    group_by(TP_DEPENDENCIA_ADM_ESC) %>%
+    summarise(
+      across(contains("NU_NOTA"), l , na.rm = TRUE)
+        ) %>% view
+  
   
   enem %>% 
     group_by(TP_DEPENDENCIA_ADM_ESC) %>%
@@ -284,7 +347,9 @@ slides
           max = ~max(.x, na.rm = TRUE)
         )  
       )
-    )
+    ) %>% view
+  
+  
 ```
 
 ### Tarefas comuns de manipulação de dados
@@ -294,13 +359,16 @@ slides
 
 enem %>% select(NU_NOTA_MT)
 
+enem %>% pull(NU_NOTA_MT)
+
+enem %>% select(NU_NOTA_MT) %>% pull
+
 enem$NU_NOTA_MT
 
 enem %>% .$NU_NOTA_MT
 
-enem %>% pull(NU_NOTA_MT)
 
-enem %>% select(NU_NOTA_MT) %>% pull
+
 
 
 ```
@@ -312,32 +380,40 @@ enem %>% select(NU_NOTA_MT) %>% pull
 
   enem %>% 
     select( contains("NU_NOTA")) %>%
-    corr.test()
+    corr.test() %>% 
+    pluck("n")
+  
+  
+    as.data.frame()
+  
+    `[[`("r")
+   
     
 
   library(corrr)
    
   enem %>% 
-    select( NU_NOTA_CN:NU_NOTA_MT) %>%
+    select( contains("NU_NOTA")) %>%
     correlate %>%
     shave %>%
-    fashion
+    fashion %>% 
+    view
   
   enem %>% 
-    select( NU_NOTA_CN:NU_NOTA_MT) %>%
+     select( contains("NU_NOTA")) %>%
     correlate %>%
-    network_plot(min_cor = .2)
+    network_plot(min_cor = .3)
    
-   library(corrplot)
+  library(corrplot)
    
   enem %>% 
-      select( NU_NOTA_CN:NU_NOTA_MT) %>%
-      cor
+      select( contains("NU_NOTA")) %>%
+      cor(use = "pairwise")
 
   enem %>% 
-     select( NU_NOTA_CN:NU_NOTA_MT) %>%
+     select( contains("NU_NOTA")) %>%
      cor(use = "pairwise") %>%
-     corrplot(method = "number")
+     corrplot(method = "square")
 
  
   
@@ -351,21 +427,46 @@ enem %>% select(NU_NOTA_MT) %>% pull
     select(perc_mt, mt_scores) %>%
     arrange(perc_mt) %>%
     group_by(mt_scores) %>%
-    summarise(perc_mt = first(perc_mt))
+    summarise(perc_mt = round(first(perc_mt), 2))
+
+  f <- ecdf(enem$mt_scores)
+  plot(f)
+  
+  enem %>% 
+    mutate(perc_mt =  f(mt_scores)) %>%
+    select(mt_scores, perc_mt)
+   
+  normas <- tibble(
+    score_mt = 0:45,
+    percentil = f(score_mt)
+   )
+  
+  f(45)
 
   library(scales)
   
   enem %>% 
-    mutate(Perc_MT =  percent_rank(mt_scores)) %>%
-    ggplot(aes(y = Perc_MT, x = mt_scores)) +
-    geom_line(alpha = 1/2) +
+    mutate(
+      perc_MT =  percent_rank(NU_NOTA_MT),
+      perc_CH = percent_rank(NU_NOTA_CH),
+      perc_CN =  percent_rank(NU_NOTA_CN),
+      perc_LC = percent_rank(NU_NOTA_LC)
+      ) %>%
+    ggplot() +
+    geom_line(aes(y = perc_MT, x = NU_NOTA_MT), alpha = 1/2, color = "red") +
+    geom_line(aes(y = perc_CH, x = NU_NOTA_CH), alpha = 1/2, color = "orange") +
+    geom_line(aes(y = perc_CN, x = NU_NOTA_CN), alpha = 1/2, color = "blue") +
+    geom_line(aes(y = perc_LC, x = NU_NOTA_LC), alpha = 1/2, color = "yellow") +
     scale_y_continuous(breaks = breaks_extended(10), labels = label_percent()) +
-    scale_x_continuous(breaks = breaks_extended(10)) 
+    scale_x_continuous(breaks = breaks_extended(20)) 
   
-    # Como fazer esse grafico com uma curva por prova ?
+    
 
 ```
 
+* Exercício 
+  Como fazer o grafico cima com uma curva por prova ?
+  
 * Transformar escores para escalas padronizadas (POMP, z)  
 
 https://scales.r-lib.org
@@ -374,22 +475,27 @@ https://scales.r-lib.org
 
   enem %>% 
    select(NU_NOTA_CN:NU_NOTA_MT) %>%
-    mutate( across(everything(), scale))
+    mutate( across( .funs = scale))
 
   library(scales)
   ?scales::rescale
   
   enem %>% 
    select(NU_NOTA_CN:NU_NOTA_MT) %>%
-    mutate( across(everything(), scales::rescale, to=c(0, 100))) %>%
-    summarise(across(everything(), mean, na.rm=TRUE))
+    mutate( across(everything(), scales::rescale, to=c(0, 100)) ) %>%
+    summarise(across(everything(), l, na.rm=TRUE))
 
   # Ninja way
 
   rescale01 <- function(x) {
-    rng <- range(x, na.rm = TRUE)
-    (x - rng[1]) / (rng[2] - rng[1])
+    range <- range(x, na.rm = TRUE)
+    (x - range[1]) / (range[2] - range[1])
   }
+  
+  range(enem$NU_NOTA_CH)
+  range <- 1
+
+  range
 
  enem %>% 
    select(NU_NOTA_CN:NU_NOTA_MT) %>%
@@ -401,11 +507,17 @@ https://scales.r-lib.org
 -  usando row-wise https://dplyr.tidyverse.org/articles/rowwise.html
 
 ```{r}
+enem %>%
+  rowwise %>%
+  mutate(across(Q001:Q050, as.integer)) %>%
+  mutate(resp_quest = c_across(Q001:Q050, ~sum(!is.na(.x)))) %>%
+  relocate(resp_quest) %>% view
+
 
 
 enem %>%
-  mutate(across(Q001:Q050, as.integer)) %>%
   rowwise %>%
+  mutate(across(Q001:Q050, as.integer)) %>%
   mutate(resp_quest = sum(!is.na(c_across(Q001:Q050)))) %>%
   relocate(resp_quest) %>%
   view
@@ -417,8 +529,19 @@ enem %>%
 enem %>%
   rowwise %>%
   mutate(enem_total = mean(c_across(NU_NOTA_CN:NU_NOTA_MT))) %>%
+  relocate(enem_total, NU_NOTA_CN:NU_NOTA_MT) %>% 
+  glimpse()
+
+
+df <- enem %>%
+  rowwise %>%
+  mutate(enem_total = mean(c_across(NU_NOTA_CN:NU_NOTA_MT))) %>%
   relocate(enem_total, NU_NOTA_CN:NU_NOTA_MT)
 
+l <- attributes(df)
+
+l$groups %>% view
+ 
 ```
 
 
@@ -427,8 +550,8 @@ enem %>%
 ```{r}
   
   enem %>% 
-   select(NU_NOTA_CN:NU_NOTA_MT, NO_MUNICIPIO_ESC) %>%
-    group_by(NO_MUNICIPIO_ESC) %>%
+   select(NU_NOTA_CN:NU_NOTA_MT, SG_UF_RESIDENCIA) %>%
+    group_by(SG_UF_RESIDENCIA) %>%
     mutate( 
       across(
         everything(),
@@ -437,7 +560,7 @@ enem %>%
           wg = ~scale(.x)
         )
       )
-    ) 
- dplyr::mutate
+    ) %>% arrange(SG_UF_RESIDENCIA)
+
 
 ```

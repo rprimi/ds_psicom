@@ -40,7 +40,7 @@ cases <- tribble(
       "US",   15000,   14000,   13000
 )
 
-cases_long <- pivot_longer(cases, cols = 2:4, names_to = "ano", values_to = "pop")
+cases_long <- pivot_longer(cases, cols = c("2011", "2012", "2013"), names_to = "ano", values_to = "pop")
 
 cases_long <- pivot_longer(cases, cols = `2011`:`2013`, names_to = "ano", values_to = "pop")
 
@@ -179,6 +179,9 @@ y <- tribble(
 left_join(x, y, by = "key")
 
 ```
+
+
+
 ```{r}
 
 x <- tribble(
@@ -216,7 +219,7 @@ enem %>% ggplot(aes(x = NU_NOTA_MT, fill = TP_SEXO)) +
           geom_density( alpha = .50)
 
 enem %>% ggplot(aes(x = NU_NOTA_MT, fill = TP_SEXO)) +
-          geom_density(alpha = .50, adjust = 1/10)
+          geom_density(alpha = .50, adjust = 1)
 
 enem %>% ggplot(aes(x = NU_NOTA_LC, fill = TP_SEXO)) +
           geom_density(alpha = .50)
@@ -233,7 +236,7 @@ enem %>% ggplot(aes(x = NU_NOTA_MT, fill = TP_SEXO)) +
 library(scales)
 
 enem %>% 
-  select(TP_SEXO, NU_NOTA_CN:NU_NOTA_MT) %>%
+  select(NU_INSCRICAO, TP_SEXO, NU_NOTA_CN:NU_NOTA_MT) %>%
   pivot_longer(
     cols = NU_NOTA_CN:NU_NOTA_MT, 
     names_to = "enem",
@@ -246,5 +249,26 @@ enem %>%
     facet_wrap(~TP_SEXO, ncol = 1)
   
 
+```
+```{r}
+
+names(enem)
+
+ enem %>%  pivot_longer(
+    cols = NU_NOTA_CN:NU_NOTA_MT, 
+    names_to = "prova",
+    values_to = "nota_TRI"
+    ) %>% 
+    select(NU_INSCRICAO, prova, nota_TRI) %>%
+    group_by(prova) %>%
+    dplyr::mutate(percentil=percent_rank(nota_TRI)) %>% 
+    
+    ggplot(aes(y = percentil, x = nota_TRI, color = prova), alpha = 1/2) +
+    geom_line()  +
+    scale_y_continuous(breaks = breaks_extended(10), labels = label_percent()) +
+    scale_x_continuous(breaks = breaks_extended(20)) 
+
+
+    
 ```
 
