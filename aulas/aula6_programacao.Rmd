@@ -14,21 +14,37 @@ library(tidyverse)
 
 ### Funções
 
+* Tudo no R são funções 
+```{r}
+  1 + 1 
+  mean(1:5)
+  `+`(1, 1)
+  `mean` <- function(x) x+1
+     
+  mean(1:5)
+   
+  rm(mean)
+```
+
 ```{r}
 
- f <- function() { 
-   cat("Alô Mundo!") 
+cat("Alô Mundo!")
+
+ f <- function() {
+    cat("Alô Mundo!") 
    }
- 
+ f()
 
  f <- function(x, y) { 
    cat(x, y) 
    }
 
-  f(x = "Oieeeee", "Tudo bem ?")
-
+  f(x = "Oieeeee", y = "Tudo bem ?")
+ f("Oieeeee", "Tudo bem ?")
+ 
+ f(y = "Tudo bem ?", x ="Oieeeee")
+ 
 ```
-
 
 
 * Automação
@@ -39,15 +55,17 @@ Wickham & Grolmund (2017, cap 19 )
 ```{r}
   
   df <- tibble::tibble(
-    a = rnorm(10),
-    b = rnorm(10),
-    c = rnorm(10),
-    d = rnorm(10)
+    a = rnorm(100),
+    b = rnorm(100),
+    c = rnorm(100),
+    d = rnorm(100)
   )
 
-  
+  df %>% ggplot(aes(x=a)) + 
+    geom_histogram(fill = "white", color = "black")
+
   df$a <- (df$a - min(df$a, na.rm = TRUE)) / 
-    (max(df$a, na.rm = TRUE) - min(df$a, na.rm = TRUE))
+  (max(df$a, na.rm = TRUE) - min(df$a, na.rm = TRUE))
   
   df$b <- (df$b - min(df$b, na.rm = TRUE)) / 
     (max(df$b, na.rm = TRUE) - min(df$a, na.rm = TRUE))
@@ -65,12 +83,28 @@ Wickham & Grolmund (2017, cap 19 )
   
   (x - rng[1]) / (rng[2] - rng[1])
   
+ rng <- range(df$a, na.rm = TRUE)
+ rng[2]
+ 
+  x = df$a
+  
+  (x - -2.2) / 5.11
+  
+  
   rescale01 <- function(x) {
     rng <- range(x, na.rm = TRUE)
     (x - rng[1]) / (rng[2] - rng[1])
   }
-  
+ 
   df <- tibble::tibble(
+    a = rnorm(10),
+    b = rnorm(10),
+    c = rnorm(10),
+    d = rnorm(10),
+    e = 1
+  )
+  
+   df <- tibble::tibble(
     a = rnorm(10),
     b = rnorm(10),
     c = rnorm(10),
@@ -82,9 +116,26 @@ Wickham & Grolmund (2017, cap 19 )
   df$c <- rescale01(df$c)
   df$d <- rescale01(df$d)
   
+  
+   rescale01 <- function(x) {
+    rng <- range(x, na.rm = TRUE)
+    (x - rng[1]) / (rng[2] - rng[1])
+  }
+  
+
 
 ```
 
+* Mudando a métrica usando dplyrcom a função criada 
+
+```{r}
+  
+df <- df %>% dplyr::mutate(across(.fns = rescale01))
+ 
+```
+
+
+Exercício A: faça uma função para transformar uma nota em QI  QI = ((x - M) / DP)*15 + 100.
 
 ### Execução condicional
 
@@ -111,6 +162,7 @@ Wickham & Grolmund (2017, cap 19 )
   }
 
   tempo <- function(temp) {
+ 
     if (temp <= 0) {
       "freezing"
     } else if (temp <= 10) {
@@ -123,32 +175,35 @@ Wickham & Grolmund (2017, cap 19 )
       "hot"
     }
   }
-  
+tempo(0)
+tempo(40)
+
 tempo(" ")
 class(" ")
 
-" " < 0
+"" < 0
 
 ```
 
+* Switch com controle de erros
 ```{r}
 
  f <- function(x, y, op) {
-
-     switch(op,
-      
+   
+   if(!(op %in% c("plus", "minus", "times", "divide"))) {
+     stop("Unknown op! fora do switch")
+   } 
+ 
+    switch(op,
        plus = x + y,
        minus = x - y,
        times = x * y,
        divide = x / y
-      
-     )
-   
-    stop("Unknown op! fora do switch")
-  }
+      )
+    }
 
 
-f(x = 2, y = 2, op = "multiplica")
+f(x = 2, y = 2, op = "times" )
 
 
 ```
@@ -162,23 +217,18 @@ x <- c("a", "b", "c", "d")
 x[1]
 x[2]
 
-
 for(i in 1:4) {
     print(x[i])
   }
 
-f <- function(num) {
-  for(i in seq_len(num)) {
-    cat("Alô, mundo!")
-   } 
-}
 
-f(20)
-seq_len(20)
 
-f(20)
+```
 
-x <- matrix(1:6, 2, 3)
+* Fazendo um loop pelas linhas e colunas de uma matriz
+```{r}
+
+x <- matrix(data = 1:6, nrow = 2, ncol =  3, byrow = F)
 
 x 
 
@@ -190,20 +240,44 @@ for(i in seq_len(nrow(x))) {
     print( x[i, j] )
   
     } 
-  
-}
-
-load("../dados/enem.Rdata")
-
-for (nm in names(enem)){
-  
- print(head(enem[ , nm]))
-  
 }
 
 
 ```
 
+* Funçòes para crianção de índices para o ;oop
+
+```{r}
+
+seq_len(20)
+seq_along(3:9)
+
+
+f <- function(num) {
+  for(i in seq_len(num)) {
+    print(paste0(i, ". ", "Alô, mundo!"))
+   } 
+}
+
+f(3)
+f(20)
+seq_len(20)
+
+load("../dados/enem.Rdata")
+
+for (nm in names(enem[ , 1:20])){
+  
+ print(head(enem[ , nm], n = 4))
+  
+}
+
+```
+
+```{r}
+
+```
+
+* Partes de um loop
 ```{r}
 
 df
@@ -216,30 +290,17 @@ median(df$d)
 df <-  as.data.frame(df)
 df <-  as.tibble(df)
 
-df[, 1]
-
-
-as.data.frame(df[,1])  
-
-as.data.frame([,1])
-
-as.data.frame(df)[,1]
-df[, 1]
-
-
-median( df[[1]] )
-median(
-  
-  
-  )
 
 output <- vector("double", ncol(df))  # 1. output
 
 for (i in seq_along(df)) {            # 2. sequence
   
-  output[[i]] <- median(as.data.frame(df[[i]]))      # 3. body
+  output[[i]] <- median(df[[i]])      # 3. body
 
   }
+
+output
+
 
 means <- c(1, 50, 20)
 
@@ -251,48 +312,83 @@ for (i in 1:length(means)) {
 
 out
 
-?apply
+
 ```
 
 ### Apply e lapply 
+```{r}
+df %>% dplyr::summarise(across(.fns = mean))
+```
 
+* Função média das colunas 
 ```{r}
 
 col_mean <- function(df) {
-  
   output <- vector("double", length(df))
  
    for (i in seq_along(df)) {
     output[i] <- mean(df[[i]])
    }
-  
   output
 }
 
 
 col_mean(df)
 
+```
 
+* Exercício B: crie uma função `row_mean`
 
-is.na(df$a)
+### apply
+?apply
 
-df <- as.data.frame(apply(df, MARGIN = 2, function(x){ x -  mean(x) } ))
-
-mean(df$a)
+```{r}
 
 apply(df, MARGIN = 2, mean)
+apply(df, MARGIN = 1, mean)
 apply(df, MARGIN = 1, sum)
 
+df <- apply(
+  df, 
+  MARGIN = 2, 
+  function(x){ x -  mean(x) } 
+  )
+
+```
 
 
-round(apply(df,  MARGIN = 2, sum ))
+* Quantos itens em branco no questionário socio econômico do ENEM
 
+```{r}
+
+v <- names(enem)[45:94]
+enem %>% select(v) %>% view
+
+enem %>% select(v[1:10]) %>% sjmisc::frq()
+
+enem$itens_respond <- apply(
+  enem[ , v], 
+  MARGIN = 1, 
+  function(x){ sum(!is.na(x)) } 
+  )
+
+sjmisc::frq(enem$itens_respond)
+
+
+
+
+```
+
+* Exercício C: use o apply para calcular um escore total no ENEM considerando as notas das quatro provas e a redação 
+
+* lapply
+```{r}
 
 x <- 1:4
 lapply(x, runif)
+lapply(x, rnorm)
 
-runif(4)
-
+lapply(list(1:4, 1, 1:3), print)
 
 
 hist(runif(10000))
@@ -313,7 +409,18 @@ x <- 1:10
 
 lst <- lapply(x, print)
 
+ getAnywhere(lapply)
+ body(lapply)
+ 
+ View(lapply)
+ View(mean)
+
 ```
+
+```{r}
+
+```
+
 
 
 ### Purrr

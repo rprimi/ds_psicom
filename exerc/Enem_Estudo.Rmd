@@ -1,0 +1,104 @@
+---
+title: "Enem_Estudo"
+author: "Alexandre  Antonello"
+date: "22/10/2021"
+output: html_document
+---
+
+```{r echo=FALSE}
+library(dplyr)
+enem %>% select(TP_SEXO, SG_UF_NASCIMENTO,NU_NOTA_CN:NU_NOTA_MT)%>% head()
+
+### tarefa: Selecionar todas as colunas numéricas
+tabela_numerica <-enem %>% select_if(is.numeric)%>% head()
+View(tabela_numerica)
+
+```
+
+### Filter
+```{r}
+### Filtrar as linhas onde o valor das notas, seja, maior que 500
+
+enem %>% filter(NU_NOTA_CN>500)%>% head()
+tabela_CN <-enem %>% filter(between(NU_NOTA_CN,
+                        as.double(400),
+                        as.double(700)))%>% head()
+View(tabela_CN)
+### Filtrar as notas que não sejam 520 em CN
+enem%>% filter(NU_NOTA_CN != 520)
+
+install.packages("stringr")
+library(stringr)
+### Filtros baseados em multiplas colunas
+enem%>% filter(str_detect(NO_MUNICIPIO_RESIDENCIA,"Teresina"))
+
+```
+
+### Mutate
+```{r}
+### Vamos criar um dataset menor para treino
+
+enem_menor <-enem %>%
+  select(NO_MUNICIPIO_RESIDENCIA,SG_UF_RESIDENCIA,TP_DEPENDENCIA_ADM_ESC,TP_SEXO,SG_UF_NASCIMENTO,
+         TP_ST_CONCLUSAO,TP_COR_RACA,NU_NOTA_CN:NU_NOTA_REDACAO,Q001:Q050)
+
+```
+
+### https://github.com/rprimi/ds_psicom/blob/master/exerc/ex3_dplyr.Rmd
+### Feito
+```{r}
+View(enem)
+filter(enem,TP_SEXO == "Feminino", SG_UF_RESIDENCIA =="SP")
+
+### Selecionar somente as Notas
+
+
+notas <- enem_menor %>%select(c(NU_NOTA_CN,NU_NOTA_CH,NU_NOTA_LC,NU_NOTA_MT,NU_NOTA_REDACAO))
+View(notas)
+
+###  Crie uma nota global combinando as quatro provas e a redação
+
+enem %>%
+  rowwise %>%
+  mutate(notas = mean(c_across(c(NU_NOTA_CN,NU_NOTA_CH,NU_NOTA_LC,NU_NOTA_MT,NU_NOTA_REDACAO))))
+### Não vejo esse coluna! Como fazer?
+  
+### Organizar uma base com as notas da maior até a menor
+
+enem%>%
+  arrange(desc(NU_NOTA_MT))%>%
+  select(TP_SEXO,NU_NOTA_MT,mt_scores,everything())%>%
+  view()
+```
+
+### Esse final eu não entendi
+
+```{r}
+### Nessa base quantos alunos por estado temos na base?
+### Como eu faço para ver o que foi feito?
+
+enem%>% 
+  group_by(TP_SEXO)%>% 
+  tally()
+
+###  Calcule a média e desvio padrão, mínimo e máximo para o estado da nota que você calculou
+
+funcoes <- list(
+          média  =  mean,
+          sd  =  sd,
+          min  =  min,
+          max  =  max
+      )
+
+
+ funcoes$média(1:5)
+enem %>%
+    group_by(TP_DEPENDENCIA_ADM_ESC)%>%
+    summarise(
+      across(contains("NU_NOTA"), funcoes, .names = "{.fn}_{.col}",na.rm=TRUE ), 
+     )  %>% view
+
+ 
+
+```
+
