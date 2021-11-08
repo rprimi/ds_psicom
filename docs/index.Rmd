@@ -70,9 +70,9 @@ da linguagem
 -   ggplot
     <https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf>
     <https://rstudio.cloud/learn/cheat-sheets>
--   Aula 1 ggplot 
+-   Aula 2a ggplot 
     <https://github.com/rprimi/ds_psicom/tree/master/aulas/aula1_ggplot.Rmd> 
--   Aula 2 ggplot 
+-   Aula 2b ggplot 
     <https://github.com/rprimi/ds_psicom/tree/master/aulas/aula2_ggplot.Rmd> 
 
 #### Aula 3 (20/09, 4/10, 18/10/2021) Dados no R: tipos, estruturas e classes Organização transformação e manipulação de dados: dplyr e tidyr  
@@ -87,6 +87,10 @@ da linguagem
 -   Aula 4 tidyr 
     <https://github.com/rprimi/ds_psicom/tree/master/aulas/aula4_tidyr.Rmd> 
 
+#### Aula 5 (8/11/2021) Programação no R: funções, execução condicional, loops  
+
+-   Aula 5 programação 
+    <https://github.com/rprimi/ds_psicom/tree/master/aulas/aula6_programacao.Rmd> 
 
 #### Materiais adicionais e Referências
 
