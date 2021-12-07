@@ -340,7 +340,7 @@ col_mean(df)
 * Exercício B: crie uma função `row_mean`
 
 ### apply
-?apply
+apply
 
 ```{r}
 
@@ -417,12 +417,6 @@ lst <- lapply(x, print)
 
 ```
 
-```{r}
-
-```
-
-
-
 ### Purrr
 
 ![](../imagens/purrr_apply.png)  
@@ -432,12 +426,16 @@ library(purrr)
 
 map(df, mean)
 
+df2 <- map(df, mean)
+df2 <- map_dbl(df, mean)
+df2 <- map_chr(df, mean)
+
 str(map_dbl(df, mean))
 
-
 v <- letters
-map(v, print)
 
+v2 <- map(v, print)
+map(v, print)
 walk(v, print)
 
 
@@ -451,9 +449,10 @@ walk(v, print)
 mean <- list(5, 10, 15)
 sd <- list(1, 5, 10)
 
-map2(mean, sd, rnorm, n = 10)
 
-
+map2(mean, sd, rnorm(), n = 10)
+map2( list(5, 10, 15), list(1, 5, 10), rnorm())
+rnorm(c(5, 10, 15), c(1, 5, 10))
 
 map2 <- function(x, y, f, ...) {
   
@@ -483,11 +482,12 @@ pmap(args1, rnorm)
 args1 %>% pmap(rnorm)
  
 
-args2 <- list(mean = mu, sd = sigma, n = n)
+args2 <- list(mean = mean, sd = sd, n = n)
+
 args2 %>% 
   pmap(rnorm) %>% 
   str()
-
+library(tibble)
 
 params <- tribble(
   ~mean, ~sd, ~n,
@@ -523,7 +523,7 @@ sim <- tribble(
   "rpois", list(lambda = 10)
 )
 
-
+library(tidyverse)
 
 sim <- sim %>% 
   mutate(
@@ -537,7 +537,6 @@ sim <- sim %>% mutate( media = map(dados, ~mean))
 ```
 ![](../imagens/lists-invoke.png)  
 
-
 ### List columns
 
 * Criar um índice socio-econômico no ENEM
@@ -549,7 +548,7 @@ sim <- sim %>% mutate( media = map(dados, ~mean))
   library(broom)
   library(sjmisc)
   library(sjlabelled)
-  library(sjmisc)
+ 
 
 
   load("../dados/enem.Rdata")
@@ -567,13 +566,20 @@ sim <- sim %>% mutate( media = map(dados, ~mean))
   levels(enem$Q002)
   
   enem %>% select(Q007:Q025) %>% frq
-  enem %>% select(Q007:Q025) %>% map(levels)
-  enem %>% select(Q007:Q025) %>% map(as.numeric)
   enem %>% select(Q007:Q025) %>% map(class)
+  enem %>% select(Q007:Q025) %>% map(levels)
+  
+  enem %>% select(Q007:Q025) %>% map_df(as.numeric)
+  
   
   # desafio ! explicar ~
-  enem %>% select(Q007:Q025) %>% map( ~sum(is.na(.x)) )
   
+  enem %>% select(Q007:Q025) %>% map( function(x){sum( is.na(x) )} )
+  
+  y =  is.na(x)
+  sum(y)
+  
+  enem %>% select(Q007:Q025) %>% map( ~sum(is.na(.)) )
   
   
   is.na(enem$Q007) %>% table
@@ -593,29 +599,53 @@ enem %>% select(Q001:Q002) %>% map(levels)
 
 library(scales)
 
+
 escolarid <- enem %>% 
   select(Q001:Q002) %>%
   map_df(as.numeric) %>%
-  map_df(~ifelse(.x == 8, NA_integer_, .x)) %>%
+  map_df(~ifelse(. == 8, NA_integer_, .)) %>%
+  map_df(~scales::rescale(.x)) %>%
+  mutate(escolarid = across(Q001:Q002, mean, na.rm=TRUE)) 
+
+escolarid <- enem %>% 
+  select(Q001:Q002) %>%
+  map_df(as.numeric) %>%
+  map_df(~ifelse(. == 8, NA_integer_, .)) %>%
   map_df(~scales::rescale(.x)) %>%
   rowwise %>%
-  transmute(escolarid = mean(c_across(Q001:Q002), na.rm=TRUE)) %>%
-  pull(escolarid)
+  mutate(escolarid = mean(c_across(Q001:Q002), na.rm=TRUE)) %>%
+  ungroup()
 
+# function(x) { is.na(x)}
+
+escolarid <- enem %>% 
+  select(Q001:Q002) %>%
+  map_df(as.numeric) %>%
+  map_df(~ifelse(. == 8, NA_integer_, .)) %>%
+  map_df(~scales::rescale(.x)) 
+
+escolarid$escolarid <- apply(escolarid, MARGIN = 1, mean, na.rm = TRUE)
 
 ```
 
 * Pré-processamento para criar variável posses
 
 ```{r}
+   
+
+  enem %>% select(Q007:Q025) %>% get_label() %>% as.data.frame %>% view
+  
+
   enem %>% select(Q007:Q025) %>% map(levels)
  
   library(psych)
+  library(corrr)
    
   enem %>% 
     select(Q007:Q025) %>% 
     map_df(as.numeric) %>%
-    corr.test()
+    correlate() %>%
+    corrr::network_plot()
   
   enem %>% 
     select(Q007:Q025) %>% 
@@ -627,8 +657,8 @@ escolarid <- enem %>%
   map_df(as.numeric) %>%
   map_df(~scales::rescale(.x)) %>%
   rowwise %>%
-  transmute(posses = mean(c_across(Q007:Q025), na.rm=TRUE)) %>%
-  pull(posses)
+  mutate(posses = mean(c_across(Q007:Q025), na.rm=TRUE)) %>%
+  ungroup()
  
  
 
@@ -637,13 +667,17 @@ escolarid <- enem %>%
 * Adiciona ao banco e cria ENEM geral
 ```{r}
 
- enem <- bind_cols(enem, escolarid = escolarid, posses = posses)
+ enem <- bind_cols(
+   enem, 
+   escolarid = escolarid$escolarid, 
+   posses = posses$posses
+   )
 
  names(enem)
  
- cor(posses, escolarid, use="pairwise")
+ cor(enem[, 98:99], use="pairwise")
  
- ggplot(enem, aes(x=escolarid, y=posses)) + geom_point() + geom_smooth()
+ ggplot(enem, aes(x=escolarid, y=posses, color = TP_SEXO)) + geom_point() + geom_smooth()
  
  
       
@@ -655,23 +689,28 @@ escolarid <- enem %>%
   transmute(posses = mean(c_across(Q007:Q025), na.rm=TRUE)) %>%
   pull(posses)
  
+ names(enem)
+ 
  
  enem <- enem %>% 
    rowwise() %>%
    mutate(
     ses = mean(escolarid, posses, na.rm=TRUE),
-    enem_tot =  mean(c_across(NU_NOTA_CN:NU_NOTA_MT), na.rm=TRUE)
-        )
+    enem_tot =  mean(c_across(NU_NOTA_CN:NU_NOTA_MT), na.rm=TRUE),
+    enem_sd =  sd(c_across(NU_NOTA_CN:NU_NOTA_MT), na.rm=TRUE)
+        ) %>%
+   ungroup()
  
+ 
+ # Nao funciona ?
  enem %>% 
   select(Q007:Q025) %>%
    map_df(as.numeric) %>%
    mutate_all(escore = mean, na.rm = TRUE)
  
  
- enem %>% select(NU_NOTA_CN:NU_NOTA_MT, escolarid:enem_tot) %>%
+ enem %>% select(NU_NOTA_CN:NU_NOTA_MT, NU_NOTA_REDACAO,   escolarid:enem_tot) %>%
     corr.test()
- 
  
 
 
@@ -684,7 +723,7 @@ escolarid <- enem %>%
   enem %>% 
     ggplot(aes(y = enem_tot, x = ses, color = posses) ) +
      geom_point(alpha = 1/3) +
-     geom_smooth() 
+     geom_smooth(method = "lm") 
 
 
 
@@ -694,14 +733,15 @@ escolarid <- enem %>%
      geom_point(alpha = 1/3) +
      geom_smooth() 
 
-  frq(enem$TP_COR_RACA)
-
+   frq(enem$TP_COR_RACA)
+  
   fit <-  enem %>% 
-   filter(SG_UF_RESIDENCIA == "GO") %>%
     lm( enem_tot ~ ses+TP_SEXO+TP_COR_RACA, data = .)
-
+  
+  forcats::fct_re
+  
   library(sjPlot)
-  tab_model(fit, show.std = TRUE)
+  tab_model(fit, show.std = TRUE, show.reflvl = TRUE)
   
   library(broom)
   library(lm.beta)
@@ -711,6 +751,13 @@ escolarid <- enem %>%
   
   fit %>% lm.beta %>% tidy
  
+  
+
+  fit <-  enem %>% 
+   filter(SG_UF_RESIDENCIA == "GO") %>%
+    lm( enem_tot ~ ses+TP_SEXO+TP_COR_RACA, data = .)
+
+  
   class(enem$SG_UF_RESIDENCIA)
   
   typeof(enem$SG_UF_RESIDENCIA)
@@ -734,11 +781,16 @@ enem_uf <- enem %>%
   group_by(SG_UF_RESIDENCIA) %>%
   nest()
 
+str(enem_uf$data)
+glimpse(enem_uf$data)
+
 enem_uf$SG_UF_RESIDENCIA[[1]]
 enem_uf$data[[1]]
 
-str(enem_uf$data[1])
-str(enem_uf$data[[1]])
+
+enem_uf$SG_UF_RESIDENCIA[[2]]
+enem_uf$data[[2]]
+
 
 f <- function(df) {
   lm(enem_tot~ses+TP_SEXO+TP_COR_RACA, data = df)
@@ -754,22 +806,30 @@ length(enem_uf$fit)
 
 enem_uf$SG_UF_RESIDENCIA
 
-tab_model(enem_uf$fit[[1]], show.std = TRUE)
+tab_model(enem_uf$fit[[2]], show.std = TRUE)
 
 tidy(enem_uf$fit[[1]])
+
+broom::glance(enem_uf$fit[[2]])
+
 
 enem_uf_resu <- enem_uf %>%
   mutate(resu = map(fit, broom::glance)) %>%
   select(resu) %>%
   unnest(resu)
 
+enem_uf_resu2 <- enem_uf %>%
+  mutate(resu = map(fit, ~broom::tidy(lm.beta(.x)))) %>%
+  select(resu) %>%
+  unnest(resu)
 
-enem_uf %>% filter(SG_UF_RESIDENCIA == "TO") %>%
+
+
+enem_uf %>% filter(SG_UF_RESIDENCIA == "SE") %>%
   pull(fit) %>%
-  unnest 
-  
-  
-  tab_model(show.std = TRUE)
+   tab_model(show.std = TRUE)
+ 
+ 
 
 
 ```
@@ -779,3 +839,4 @@ enem_uf %>% filter(SG_UF_RESIDENCIA == "TO") %>%
 * Faça um gráfico de barra com os r.squared por estado ordenando o estado com maior r-squared ao menor  
 
 * Diferenças de genero nos estados
+

@@ -87,10 +87,17 @@ da linguagem
 -   Aula 4 tidyr 
     <https://github.com/rprimi/ds_psicom/tree/master/aulas/aula4_tidyr.Rmd> 
 
-#### Aula 5 (8/11/2021) Programação no R: funções, execução condicional, loops  
+#### Aula 5 (8, 15, 22 e 29 /11/2021) Programação no R: funções, execução condicional, loops  
 
--   Aula 5 programação 
+-   Aula 5 programação. Loops com apply e lapply. Programação (interação e funções) com purrr
+    List columns
     <https://github.com/rprimi/ds_psicom/tree/master/aulas/aula6_programacao.Rmd> 
+    
+#### Trabalho final: Shiny Dashboard com dados da Pós Graduação 
+
+-   Arquivo de trabalho:
+    <https://github.com/rprimi/ds_psicom/tree/master/trab_final/dados.Rmd> 
+    
 
 #### Materiais adicionais e Referências
 

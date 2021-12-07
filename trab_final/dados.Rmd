@@ -1,0 +1,176 @@
+---
+title: "Dados"
+author: "Ricardo Primi"
+date: "11/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+save.image("~/Dropbox (Personal)/comissão_auto_avaliacao_usf/base_edu_psico_med.RData")
+
+
+```
+
+
+```{r}
+load("base_edu_psico_med.RData")
+```
+
+
+```{r}
+library(tidyverse)
+library(reticulate)
+library(sjmisc)
+
+
+```
+
+
+## Plano
+
+* Examinar planilhas
+* Produção +  qualis, nome/codigo dos programas, numero de docentes permanentes,
+* Separar os dados Educação, Medicina e Psicologia
+* Reorganizar os dados
+* Fazer o grafico de produção dos programas 
+
+## Importa dados
+
+```{r}
+library(readxl)
+producao <- read_excel("br-colsucup-prod-detalhe-bibliografica-2017a2018-2019-07-05-artpe.xlsx")
+cursos <- read_excel("br-capes-colsucup-curso-2019-2020-11-30.xlsx")
+n_docentes_cursos <- read_excel("dados.xlsx")
+
+library(readr)
+novoqualis <- read_delim("novoqualis.csv", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE)
+
+qualis2013_2016 <- read_delim("QualisPeriodicos_Capes2013_2016.csv", 
+    delim = ";", escape_double = FALSE, locale = locale(encoding = "latin1"), 
+    trim_ws = TRUE)
+
+
+frq(n_docentes_cursos$Ano)
+
+```
+
+
+* Na página as produções tinham ISSN ! Tentei com python mas depois consegui usando R com jasonlite
+
+```{python}
+import urllib
+
+import urllib.request
+url = 'https://dadosabertos.capes.gov.br/api/3/action/datastore_search?resource_id=740ebfc7-b4bf-4430-9c8a-3f4ac64fb029&limit=5&q=title:jones'  
+fileobj = urllib.request.urlopen(url)
+print fileobj.read()
+
+type(fileobj)
+```
+
+```{r}
+library("jsonlite")
+data <- jsonlite::fromJSON('https://dadosabertos.capes.gov.br/api/3/action/datastore_search?resource_id=740ebfc7-b4bf-4430-9c8a-3f4ac64fb029&limit=494802' )
+
+ glimpse(data$result$records) 
+ 
+ data$result$fields
+ 
+ producao2 <- as.tibble(data$result$records)
+ 
+ frq(producao2$AN_BASE)
+
+ 
+ data$result$records %>% view
+```
+
+
+
+```{r}
+
+
+# Seleciona curso de interesse
+
+frq(curso1$NM_AREA_AVALIACAO)
+
+areas_av <- c("PSICOLOGIA", "MEDICINA I", "EDUCAÇÃO")
+
+cursos <- cursos %>% filter(NM_AREA_AVALIACAO %in% areas_av)
+frq(cursos$NM_AREA_AVALIACAO)
+
+# Seleciona codigos dos prograsm de interesse 
+programas <- unique(cursos$CD_PROGRAMA_IES)
+
+n_docentes_cursos <- n_docentes_cursos %>% 
+ filter(`Código Programa` %in% programas)
+
+producao <- producao %>% 
+ filter(CD_PROGRAMA_IES %in% programas)
+
+
+producao2 <- producao2 %>% 
+ filter(CD_PROGRAMA_IES %in% programas)
+
+rm(producao2, data)
+```
+
+## Ponderação da produção
+
+```{r}
+
+producao <- producao %>% 
+ mutate(ISSN = stringr::str_sub(string = DS_ISSN, start = 2, end = 10))
+
+unique(producao$ISSN)
+frq(novoqualis$Classificação)
+duplicated(novoqualis$ISSN) %>% table
+
+# Retira registros duplicados
+novoqualis  <- novoqualis %>% filter(!duplicated(novoqualis$ISSN))
+
+
+producao <- producao %>% left_join(novoqualis, by = "ISSN")
+
+frq(producao$Estrato)
+
+
+ producao %>% filter(is.na(Estrato)) %>% 
+    left_join(qualis2013_2016, by = "ISSN") %>% view
+  
+  estrato = c("A1","A2","A3","A4","B1", "B2", "B3", "B4", "C")
+  pontos = c(100, 87.5, 75, 62.5, 50 , 37.5, 25, 12.5, 0) %>%   set_names(estrato)  
+  
+ producao$prod_qualif <- pontos[producao$Estrato]
+ 
+ 
+ producao %>% 
+  group_by(CD_PROGRAMA_IES) %>%
+  summarise(
+   media_qualidade = mean(prod_qualif, na.rm=TRUE),
+   n_art = n()
+   )
+ 
+ producao %>% frq(DS_IDIOMA)
+
+ 
+```
+
+* Exercicio desafio !! Trazer os qualis antigos para as linhas com estrato missing
+
+
+### Explorando planilhas
+```{r}
+
+frq(producao$AN_BASE_PRODUCAO)
+frq(cursos$AN_BASE)
+
+names(curso1)
+curso1 %>% arrange(NM_AREA_AVALIACAO, CD_CONCEITO_CURSO) %>% view
+
+names(curso2)
+curso2 %>% arrange(`Área Avaliação`, Ano) %>% view
+```
+
